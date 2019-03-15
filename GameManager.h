@@ -1,14 +1,53 @@
-/*
- * GameManager.h
- */
+#pragma once
 
-#ifndef GAMEMANAGER_H_
-#define GAMEMANAGER_H_
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <sstream> 
+#include <string>
+#include "Player.h"
 
-class GameManager {
-public:
-	GameManager();
-	virtual ~GameManager();
+
+#define WALL  '#'
+#define SPACE ' '
+#define PLAYER '@'
+#define TREASURE '$'
+
+#define SUCCESS 0
+#define FAILURE 1
+
+#define HEADLINE1  "Bad maze file header:"
+#define HEADLINE2  "Bad maze in maze file:"
+
+
+//possible errors
+//some kind of logger might be the better choice
+enum class ErrorStatus {
+	File_Header, Maze_File_Path, output_File_Path, MaxSteps_Format, Rows_Format, Cols_Format, Maze_Contet,
+	Missing_Player, Missing_Treasure, More_Than_One_Player, More_Than_One_Treasure, Wrong_Character
 };
 
-#endif /* GAMEMANAGER_H_ */
+class GameManager {
+	
+	// maybe a maze of calss cell (cell **maze) is a better choice
+	char **maze;
+	std::string nameOfMaze;
+	std::string mazeFileName,  outputFileName;
+	Player player;
+	std::size_t maxSteps;
+
+	bool occurredWrongFormat;
+	bool wrongMazeInput;
+	std::size_t numOfRows;
+	std::size_t numOfCols;
+	std::ofstream fout;
+	int processFiles(const std::string mazeFilePath, const std::string outputFile);
+	int openOutputFile();
+	//void printMaze();
+	int extractNumFromString(std::string str, std::size_t &n, std::string firstWord, std::string secondWord);
+	void printError(ErrorStatus error, std::string line = "", char c = ' ', std::size_t row = 0, std::size_t col = 0);
+public:
+	explicit GameManager(const char *mazeFile, const char *outputFile) : mazeFileName(std::string(mazeFile)), outputFileName(std::string(outputFile)), occurredWrongFormat(false), wrongMazeInput(false){};
+	virtual ~GameManager();
+	void startGame();
+};
