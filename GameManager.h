@@ -34,17 +34,21 @@ class GameManager {
 	std::string nameOfMaze;
 	std::string mazeFileName,  outputFileName;
 	Player player;
-	std::size_t maxSteps;
+	//std::size_t maxSteps;
+	int maxSteps;
+
 
 	bool occurredWrongFormat;
 	bool wrongMazeInput;
-	std::size_t numOfRows;
-	std::size_t numOfCols;
+	//std::size_t numOfRows;
+	//std::size_t numOfCols;
+	int numOfRows;
+	int numOfCols;
 	std::ofstream fout;
 	int processFiles(const std::string mazeFilePath, const std::string outputFile);
 	int openOutputFile();
-	//void printMaze();
-	int extractNumFromString(std::string str, std::size_t &n, std::string firstWord, std::string secondWord);
+	void printMaze();
+	int extractNumFromString(std::string str, int &n, std::string firstWord, std::string secondWord);
 	void printError(ErrorStatus error, std::string line = "", char c = ' ', std::size_t row = 0, std::size_t col = 0);
 public:
 	explicit GameManager(const char *mazeFile, const char *outputFile) : mazeFileName(std::string(mazeFile)), outputFileName(std::string(outputFile)), occurredWrongFormat(false), wrongMazeInput(false){};

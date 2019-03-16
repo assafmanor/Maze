@@ -5,7 +5,7 @@
 
 GameManager::~GameManager() {
 
-	for (std::size_t i = 0; i < numOfRows; ++i)
+	for (int i = 0; i < numOfRows; ++i)
 		delete maze[i];
 	delete[] maze;
 
@@ -16,12 +16,10 @@ void GameManager::startGame() {
 	if (processFiles(mazeFileName, outputFileName))
 		return; // in case of failure no need to run the player
 
-	
-	
 	//sanity check
-	//printMaze();
+	printMaze();
 	
-	//read moves from player...
+	//here: read moves from player...
 
 	fout.close();
 }
@@ -46,7 +44,6 @@ int GameManager::processFiles(const std::string mazeFilePath, const std::string 
 		nameOfMaze = line;
 
 		std::getline(fin, line);
-		//maxSteps = std::stoi(extractNumFromString(line));
 		if(extractNumFromString(line, maxSteps, "MaxSteps", "="))
 			printError(ErrorStatus::MaxSteps_Format, line);
 
@@ -54,24 +51,20 @@ int GameManager::processFiles(const std::string mazeFilePath, const std::string 
 		if (extractNumFromString(line, numOfRows, "Rows", "="))
 			printError(ErrorStatus::Rows_Format, line);
 
-		//numOfRows = std::stoi(extractNumFromString(line));
-
 		std::getline(fin, line);
-		if (extractNumFromString(line, numOfRows, "Cols", "="))
+		if (extractNumFromString(line, numOfCols, "Cols", "="))
 			printError(ErrorStatus::Cols_Format, line);
-		//numOfCols = std::stoi(extractNumFromString(line));
-
+	
 		//iniitalize the maze
 		maze = new char*[numOfRows];
-		for (std::size_t i = 0; i < numOfRows; ++i)
+		for (int i = 0; i < numOfRows; ++i)
 			maze[i] = new char[numOfCols];
 		
 		//fill our maze with the given maze in the file
-		for (std::size_t i = 0; i < numOfRows; ++i) {
-			std::size_t j = 0;
+		for (int i = 0; i < numOfRows; ++i) {
+			int j = 0;
 			if (std::getline(fin, line)) {
-				//std::cout <<line <<  std::endl;
-				for (std::size_t length = line.length(); j < length; ++j) {
+				for (int length = (int)line.length(); j < length; ++j) {
 					maze[i][j] = line[j];
 				}
 			}
@@ -92,21 +85,20 @@ int GameManager::processFiles(const std::string mazeFilePath, const std::string 
 		return FAILURE;
 	}
 }
-/**
-/void GameManager::printMaze() {
+
+void GameManager::printMaze() {
 	std::cout << "The name of the maze: " << nameOfMaze << std::endl;
 	std::cout << "MaxSteps: " << maxSteps << std::endl;
 	std::cout << "number of rows: " << numOfRows << std::endl;
 	std::cout << "number of cols: " << numOfCols << std::endl;
 	
-	//std::cout << std::flush;
-	for (int i = 0; i < (int)numOfRows; ++i) {
-		for (int j = 0; j < (int) numOfCols; ++j) {
+	for (int i = 0; i < numOfRows; ++i) {
+		for (int j = 0; j < numOfCols; ++j) {
 			std::cout << maze[i][j];
 		}
 		std::cout << std::endl;
 	}
-}*/
+}
 
 void GameManager::printError(ErrorStatus error, std::string line, char c, size_t row, size_t col) {
 
@@ -184,7 +176,7 @@ void GameManager::printError(ErrorStatus error, std::string line, char c, size_t
 
 //extract the number from string of the form: "blabla = 5"
 //we need to make sure that this is the only form that can be provided
-int GameManager::extractNumFromString(std::string str, std::size_t &maxSteps, std::string firstWord, std::string secondWord) {
+int GameManager::extractNumFromString(std::string str, int &maxSteps, std::string firstWord, std::string secondWord) {
 	std::vector<std::string> result;
 	std::istringstream iss(str);
 	for (std::string s; iss >> s; ) 

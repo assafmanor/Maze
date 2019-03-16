@@ -15,5 +15,6 @@ int main(int argc, char **argv) {
 	GameManager game(argv[1], argv[2]);
 	game.startGame();
 
+
 	return 0;
 }
