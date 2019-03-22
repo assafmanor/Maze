@@ -23,7 +23,7 @@
 //possible errors
 //some kind of logger might be the better choice
 enum class ErrorStatus {
-	File_Header, Maze_File_Path, output_File_Path, MaxSteps_Format, Rows_Format, Cols_Format, Maze_Contet,
+	Maze_File_Path, output_File_Path, MaxSteps_Format, Rows_Format, Cols_Format,
 	Missing_Player, Missing_Treasure, More_Than_One_Player, More_Than_One_Treasure, Wrong_Character
 };
 

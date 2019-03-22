@@ -224,14 +224,32 @@ void GameManager::printError(ErrorStatus error, std::string line, char c, size_t
 
 }
 
-//extract the number from string of the form: "blabla = 5"
+//extract the number from string of the form: "blabla = 5" or "blabla=5"
 //we need to make sure that this is the only form that can be provided
 int GameManager::extractNumFromString(std::string str, int &arg, std::string firstWord, std::string secondWord) {
 	std::vector<std::string> result;
 	std::istringstream iss(str);
+	//break the strings to tokens
 	for (std::string s; iss >> s; ) 
 		result.push_back(s);
-	if (result.size() != 3 || result.at(0).compare(firstWord) != 0 || result.at(1).compare(secondWord) != 0)
+	//in case no space before and after the '='
+	if (result.size() == 1) {
+		if (result.at(0).find('=')) {
+			try {
+				arg = std::stoi(result.at(0).substr(result.at(0).find('=')+1));
+				if (arg <= 0)	return FAILURE;
+
+			}
+			//if no conversion could be performed
+			catch (const std::invalid_argument& e) {
+				(void)e; // avoid "unreferenced local variable e" warnings
+				return FAILURE;
+			}
+		}
+		return SUCCESS;
+	}
+	//otherwise must be 3 tokens/words
+	else if (result.size() != 3 || result.at(0).compare(firstWord) != 0 || result.at(1).compare(secondWord) != 0)
 		return FAILURE;
 
 	try {
