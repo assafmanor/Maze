@@ -37,21 +37,26 @@ class GameManager {
 	//std::size_t maxSteps;
 	int maxSteps;
 
-
+	bool occurredError;
 	bool occurredWrongFormat;
 	bool wrongMazeInput;
 	//std::size_t numOfRows;
 	//std::size_t numOfCols;
 	int numOfRows;
 	int numOfCols;
+
+	int numOfPlayersProvided;
+	int numOfTreasuresProvided;
+
 	std::ofstream fout;
 	int processFiles(const std::string mazeFilePath, const std::string outputFile);
 	int openOutputFile();
 	void printMaze();
 	int extractNumFromString(std::string str, int &n, std::string firstWord, std::string secondWord);
 	void printError(ErrorStatus error, std::string line = "", char c = ' ', std::size_t row = 0, std::size_t col = 0);
+	bool validCharacter(const char &c);
 public:
-	explicit GameManager(const char *mazeFile, const char *outputFile) : mazeFileName(std::string(mazeFile)), outputFileName(std::string(outputFile)), occurredWrongFormat(false), wrongMazeInput(false){};
+	explicit GameManager(const char *mazeFile, const char *outputFile) : mazeFileName(std::string(mazeFile)), outputFileName(std::string(outputFile)), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0){};
 	virtual ~GameManager();
-	void startGame();
+	int startGame();
 };

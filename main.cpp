@@ -10,10 +10,12 @@ int main(int argc, char **argv) {
 	}
 	else if (argc < 3) {
 		std::cout << "Missing output file argument in command line" << std::endl;
+		return 1;
 	}
 
 	GameManager game(argv[1], argv[2]);
-	game.startGame();
+	if (game.startGame()) 
+		return 1;
 
 
 	return 0;
