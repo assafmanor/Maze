@@ -21,11 +21,11 @@ int GameManager::startGame() {
 	
 	//here: read moves from player...
 	Direction curMove;
+	int nextPlayerLoc[2];
 	for(int i = 0 ; i < maxSteps; i++) {
 		std::cout << "Move #" << i+1 << std::endl;
 		curMove = player.move();
 		//check if player has hit a wall, the bookmark or the treasure
-		int nextPlayerLoc[2];
 		char obstacle;
 		switch(curMove) {
 		case Direction::LEFT:
@@ -64,8 +64,10 @@ int GameManager::startGame() {
 			std::cout << "\tBOOKMARK placed" << std::endl;
 			break;
 		}
-
 		if(curMove == Direction::BOOKMARK) continue;
+		std::cout << "before" << std::endl;
+		std::cout << "nextPlayerLoc[0]: " << nextPlayerLoc[0] << std::endl;
+		std::cout << "nextPlayerLoc[1]: " << nextPlayerLoc[1] << std::endl;
 		obstacle = maze[nextPlayerLoc[0]][nextPlayerLoc[1]];
 		switch(obstacle) {
 		case '#':
@@ -81,6 +83,7 @@ int GameManager::startGame() {
 			if(nextPlayerLoc[0] == bookmarkRow && nextPlayerLoc[1] == bookmarkCol) {
 				player.hitBookmark();
 			}
+			std::cout << "after" << std::endl;
 			break;
 		}
 		std::cout << "\tCurrent location: (" << playerRow << "," << playerCol << ")." << std::endl;
@@ -143,7 +146,13 @@ int GameManager::processFiles(const std::string mazeFilePath, const std::string 
 						maze[i][j] = line[j];
 
 						//counts the number of players and treasures provided
-						if (line[j] == '@') ++numOfPlayersProvided;
+						if (line[j] == '@') {
+							++numOfPlayersProvided;
+							if(line[j] == '@') {
+								playerRow = i;
+								playerCol = j;
+							}
+						}
 						if (line[j] == '$') ++numOfTreasuresProvided;
 					}
 				}
@@ -183,7 +192,9 @@ int GameManager::processFiles(const std::string mazeFilePath, const std::string 
 			}
 		}
 		fin.close();
-		if (occurredError) return FAILURE;
+		if (occurredError) {
+			return FAILURE;
+		}
 		return SUCCESS;
 	}
 	else {

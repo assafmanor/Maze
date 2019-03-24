@@ -59,7 +59,7 @@ class GameManager {
 	void printError(ErrorStatus error, std::string line = "", char c = ' ', std::size_t row = 0, std::size_t col = 0);
 	bool validCharacter(const char &c);
 public:
-	explicit GameManager(const char *mazeFile, const char *outputFile) : mazeFileName(std::string(mazeFile)), outputFileName(std::string(outputFile)), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1){};
+	explicit GameManager(const char *mazeFile, const char *outputFile) : mazeFileName(std::string(mazeFile)), outputFileName(std::string(outputFile)), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1), occurredError(false){};
 	virtual ~GameManager();
 	int startGame();
 };
