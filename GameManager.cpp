@@ -1,5 +1,3 @@
-
-
 #include "GameManager.h"
 
 
@@ -13,13 +11,81 @@ GameManager::~GameManager() {
 
 int GameManager::startGame() {
 	
-	if (processFiles(mazeFileName, outputFileName))
+	if (processFiles(mazeFileName, outputFileName)) {
+		std::cout << "FAILURE" << std::endl;
 		return FAILURE; // in case of failure no need to run the player
-	 
+	}
+
 	//sanity check
 	printMaze();
 	
 	//here: read moves from player...
+	Direction curMove;
+	for(int i = 0 ; i < maxSteps; i++) {
+		std::cout << "Move #" << i+1 << std::endl;
+		curMove = player.move();
+		//check if player has hit a wall, the bookmark or the treasure
+		int nextPlayerLoc[2];
+		char obstacle;
+		switch(curMove) {
+		case Direction::LEFT:
+			nextPlayerLoc[0] = playerRow;
+			if(playerCol == 0) {
+				nextPlayerLoc[1] = numOfCols-1;
+			}
+			else {
+				nextPlayerLoc[1] = playerCol - 1;
+			}
+			std::cout << "\tWished to turn LEFT" << std::endl;
+			break;
+		case Direction::RIGHT:
+			nextPlayerLoc[0] = playerRow;
+			nextPlayerLoc[1] = (playerCol + 1) % numOfCols;
+			std::cout << "\tWished to turn RIGHT" << std::endl;
+			break;
+		case Direction::UP:
+			if(playerRow == 0) {
+				nextPlayerLoc[0] = numOfRows -1;
+			}
+			else {
+				nextPlayerLoc[0] = playerRow - 1;
+			}
+			nextPlayerLoc[1] = playerCol;
+			std::cout << "\tWished to turn UP" << std::endl;
+			break;
+		case Direction::DOWN:
+			nextPlayerLoc[0] = (playerRow + 1) % numOfRows;
+			nextPlayerLoc[1] = playerCol;
+			std::cout << "\tWished to turn DOWN" << std::endl;
+			break;
+		default:
+			bookmarkRow = playerRow;
+			bookmarkCol = playerCol;
+			std::cout << "\tBOOKMARK placed" << std::endl;
+			break;
+		}
+
+		if(curMove == Direction::BOOKMARK) continue;
+		obstacle = maze[nextPlayerLoc[0]][nextPlayerLoc[1]];
+		switch(obstacle) {
+		case '#':
+			player.hitWall();
+			break;
+		case '$':
+			std::cout << "FOUND TREASURE" << std::endl;
+			return SUCCESS;
+		case '@':
+		case ' ':
+			playerRow = nextPlayerLoc[0];
+			playerCol = nextPlayerLoc[1];
+			if(nextPlayerLoc[0] == bookmarkRow && nextPlayerLoc[1] == bookmarkCol) {
+				player.hitBookmark();
+			}
+			break;
+		}
+		std::cout << "\tCurrent location: (" << playerRow << "," << playerCol << ")." << std::endl;
+		player.printMaze();
+	}
 
 	fout.close();
 	return SUCCESS;
@@ -265,6 +331,3 @@ int GameManager::extractNumFromString(std::string str, int &arg, std::string fir
 	
 	return SUCCESS;
 }
-
-
-	
