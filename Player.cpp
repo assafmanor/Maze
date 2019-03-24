@@ -79,17 +79,18 @@ void Player::hitBookmark() {
 		if(rowsToErase == 0) rowsToErase++;
 		std::cout << "(**) rowsToErase = " << rowsToErase << std::endl;
 		//fix coordinates
-		////bookmarkRow -= (rowsToErase+1);
 		std::cout << "(***) bookmarkRow = " << bookmarkRow << std::endl;
 		if(lastDirection == Direction::UP) {
 			bookmarkRow = bookmarkRow-rowsToErase;
 			curRow = bookmarkRow;
 			std::cout << "bookmarkRow = " << bookmarkRow << std::endl;
 			//remove the $rowsToErase highest rows
-			mappedMaze.erase(mappedMaze.begin());
-			for(int i = rowsToErase-1; i > 0; i--) {
-				//copy the first cell to the ending, and then erase it
-				mappedMaze.at(mappedMaze.size()-i).at(curCol) = mappedMaze.at(0).at(curCol);
+			for(int i = rowsToErase; i > 0; i--) {
+				for(int j = 0; j <= cols; j++) {
+					if(i < rowsToErase && mappedMaze.at(0).at(j).obstacle != MazeObstacle::UNKNOWN) {
+						mappedMaze.at(mappedMaze.size()-i).at(j) = mappedMaze.at(0).at(j);
+					}
+				}
 				mappedMaze.erase(mappedMaze.begin());
 			}
 		}
@@ -98,9 +99,12 @@ void Player::hitBookmark() {
 			curRow = bookmarkRow;
 			std::cout << "bookmarkRow = " << bookmarkRow << std::endl;
 			//remove the $rowsToErase lowest rows
-			mappedMaze.erase(mappedMaze.end()-1);
-			for(int i = rowsToErase-1; i > 0; i--) {
-				mappedMaze.at(i-1).at(curCol) = mappedMaze.at(mappedMaze.size()-1).at(curCol);
+			for(int i = rowsToErase; i > 0; i--) {
+				for(int j = 0; j <= cols; j++) {
+					if(i < rowsToErase && mappedMaze.at(mappedMaze.size()-1).at(j).obstacle != MazeObstacle::UNKNOWN) {
+						mappedMaze.at(i-1).at(j) = mappedMaze.at(mappedMaze.size()-1).at(j);
+					}
+				}
 				mappedMaze.erase(mappedMaze.end()-1);
 			}
 		}
@@ -111,33 +115,34 @@ void Player::hitBookmark() {
 		int tempCols = cols;
 		cols = std::abs(curCol - bookmarkCol) - 1;
 		std::cout << "(*) cols = " << cols << std::endl;
-		int colsToErase = tempCols - cols - 1;
+		int colsToErase = tempCols - cols;
 		if(colsToErase == 0) colsToErase++;
 		std::cout << "(**) colsToErase = " << colsToErase << std::endl;
-		//fix coordinates
-		////bookmarkCol -= (colsToErase+1);
-		if(bookmarkCol > cols) bookmarkCol -= colsToErase;
-		curCol = bookmarkCol;
-		std::cout << "(***) bookmarkCol = " << bookmarkCol << std::endl;
 		if(lastDirection == Direction::LEFT) {
+			bookmarkCol = bookmarkCol-colsToErase;
+			std::cout << "(***) bookmarkCol = " << bookmarkCol << std::endl;
+			curCol = bookmarkCol;
 			//remove the $colsToErase leftmost columns
-			for(int i = colsToErase-1; i >= 0; i--) {
-				for(int j = 0; j <= rows; j++) {
-					std::vector<MazeCell> &iRow = mappedMaze.at(j);
-					if(j == curRow) {
-						iRow.at(iRow.size()-i-1) = iRow.at(1);
+			for(int j = 0; j <= rows; j++) {
+				std::vector<MazeCell> &iRow = mappedMaze.at(j);
+				for(int i = colsToErase; i > 0 ; i--) {
+					if(i < colsToErase && iRow.at(0).obstacle != MazeObstacle::UNKNOWN) {
+						iRow.at(iRow.size()-i) = iRow.at(0);
 					}
 					iRow.erase(iRow.begin());
 				}
 			}
 		}
 		else { //Direction::RIGHT
+			if(bookmarkCol > cols) bookmarkCol -= colsToErase;
+			std::cout << "(***) bookmarkCol = " << bookmarkCol << std::endl;
+			curCol = bookmarkCol;
 			//remove the $colsToErase rightmost columns
-			for(int i = colsToErase-1; i >= 0; i--) {
-				for(int j = 0; j <= rows; j++) {
-					std::vector<MazeCell> &iRow = mappedMaze.at(j);
-					if(j == curRow) {
-						iRow.at(i) = iRow.at(iRow.size()-2); //ignore the last column and go straight to the second to last
+			for(int j = 0; j <= rows; j++) {
+				std::vector<MazeCell> &iRow = mappedMaze.at(j);
+				for(int i = colsToErase; i > 0; i--) {
+					if(i < colsToErase && iRow.at(iRow.size()-1).obstacle != MazeObstacle::UNKNOWN) {
+						iRow.at(i-1) = iRow.at(iRow.size()-1);
 					}
 					iRow.erase(iRow.end()-1);
 				}
@@ -157,15 +162,13 @@ void Player::hitWall() {
 	MazeCell &cell = mappedMaze[curLocation[0]][curLocation[1]];
 	cell.obstacle = MazeObstacle::WALL;
 	directionChosen = false;
-	if(curLocation[0] != bookmarkLoc[0] || curLocation[1] != bookmarkLoc[1]) { //check if the bookmark is at the same location as the player, and place it if it isn't
-		placedBookmark = false;
-	}
 	Direction lastDir = path.top();
 	std::cout << "(****) lastDir = " << lastDir << std::endl;
 	undoMove(lastDir);
 	path.pop();
-	////lastDirection = path.top();
-	////std::cout << "exiting hitWall()" << std::endl;
+	if(curLocation[0] != bookmarkLoc[0] || curLocation[1] != bookmarkLoc[1]) { //check if the bookmark is at the same location as the player, and place it if it isn't
+		placedBookmark = false;
+	}
 }
 
 
@@ -260,7 +263,8 @@ Direction Player::move() {
 		}
 
 	}
-	if((bookmarkLoc[0] != curLocation[0] || bookmarkLoc[1] != curLocation[1]) && !placedBookmark) {
+	//place a bookmark if the player is not at the same cell as the bookmark, he haven't placed one and he isn't backtracking
+	if((bookmarkLoc[0] != curLocation[0] || bookmarkLoc[1] != curLocation[1]) && !placedBookmark && cell.numOfLocsTried < 4) {
 		std::cout << "move(): 1" << std::endl;
 		placedBookmark = true;
 		bookmarkLoc[0] = curLocation[0];
@@ -295,12 +299,11 @@ Direction Player::move() {
 			cell.numOfLocsTried++;
 			cell.triedDirection[chosenDir] = true;
 			directionChosen = true;
-			placedBookmark = true;
 		}
 		else { //backtrack the walked path
 			std::cout << "!!!!!!backtracking!!!!!!" << std::endl;
 			directionChosen = false;
-			placedBookmark = true;
+			placedBookmark = false;
 			switch(path.top()) {
 			case Direction::LEFT:
 				nextDirection = Direction::RIGHT;
@@ -324,7 +327,6 @@ Direction Player::move() {
 		updateLocation(nextDirection);
 		if(directionChosen) {
 			std::string nDir = nextDirection == Direction::RIGHT? "RIGHT" : (nextDirection == Direction::LEFT ? "LEFT" : (nextDirection == Direction::UP ? "UP" : (nextDirection == Direction::DOWN? "DOWN" : "BOOKMARK")));
-			std::cout << "@@@@@@@@ pushed = " << nDir << std::endl;
 			path.push(nextDirection);
 			updateMap();
 		}

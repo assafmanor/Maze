@@ -65,9 +65,6 @@ int GameManager::startGame() {
 			break;
 		}
 		if(curMove == Direction::BOOKMARK) continue;
-		std::cout << "before" << std::endl;
-		std::cout << "nextPlayerLoc[0]: " << nextPlayerLoc[0] << std::endl;
-		std::cout << "nextPlayerLoc[1]: " << nextPlayerLoc[1] << std::endl;
 		obstacle = maze[nextPlayerLoc[0]][nextPlayerLoc[1]];
 		switch(obstacle) {
 		case '#':
