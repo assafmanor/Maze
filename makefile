@@ -10,7 +10,7 @@ $(EXEC): $(OBJS)
 	$(COMP) $(OBJS) -o $@
 #a rule for building a simple c++ source file
 #use g++ -MM main.cpp to see dependencies
-main.o: main.cpp #put dependencies here!
+main.o: main.cpp GameManager.cpp GameManager.h
 	$(COMP) $(CPP_COMP_FLAG) -c $*.cpp
 GameManager.o: GameManager.cpp GameManager.h Player.h Player.cpp 
 	$(COMP) $(CPP_COMP_FLAG) -c $*.cpp
