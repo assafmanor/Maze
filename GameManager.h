@@ -28,11 +28,11 @@ enum class ErrorStatus {
 };
 
 class GameManager {
-	
+
 	// maybe a maze of calss cell (cell **maze) is a better choice
 	char **maze;
 	std::string nameOfMaze;
-	std::string mazeFileName,  outputFileName;
+	std::string mazeFileName, outputFileName;
 	Player player;
 	int playerRow, playerCol;
 	//std::size_t maxSteps;
@@ -58,8 +58,9 @@ class GameManager {
 	int extractNumFromString(std::string str, int &n, std::string firstWord, std::string secondWord);
 	void printError(ErrorStatus error, std::string line = "", char c = ' ', std::size_t row = 0, std::size_t col = 0);
 	bool validCharacter(const char &c);
+	//void updatePlayerPositionInMaze(int newRow, int newCol);
 public:
-	explicit GameManager(const char *mazeFile, const char *outputFile) : mazeFileName(std::string(mazeFile)), outputFileName(std::string(outputFile)), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1), occurredError(false){};
+	explicit GameManager(const char *mazeFile, const char *outputFile) : mazeFileName(std::string(mazeFile)), outputFileName(std::string(outputFile)), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1), occurredError(false) {};
 	virtual ~GameManager();
 	int startGame();
 };
