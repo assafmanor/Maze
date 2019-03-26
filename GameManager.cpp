@@ -1,8 +1,4 @@
 #include "GameManager.h"
-/*
-GameManager::GameManager(const char * mazeFile, const char * outputFile):mazeFileName(std::string(mazeFile)), outputFileName(std::string(outputFile)), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1), occurredError(false) {
-
-}*/
 
 GameManager::~GameManager() {
 	for (int i = 0; i < numOfRows; ++i)
