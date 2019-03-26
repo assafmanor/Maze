@@ -43,16 +43,18 @@ class GameManager {
 	bool wrongMazeInput;
 	//std::size_t numOfRows;
 	//std::size_t numOfCols;
+	
+
+	int numOfPlayersProvided;
+	int numOfTreasuresProvided;
+
 	int numOfRows;
 	int numOfCols;
 	int bookmarkRow;
 	int bookmarkCol;
 
-	int numOfPlayersProvided;
-	int numOfTreasuresProvided;
-
 	std::ofstream fout;
-	int processFiles(const std::string mazeFilePath, const std::string outputFile);
+	int processFiles(const std::string mazeFilePath);
 	int openOutputFile();
 	void printMaze();
 	int extractNumFromString(std::string str, int &n, std::string firstWord, std::string secondWord);
@@ -60,7 +62,7 @@ class GameManager {
 	bool validCharacter(const char &c);
 	//void updatePlayerPositionInMaze(int newRow, int newCol);
 public:
-	explicit GameManager(const char *mazeFile, const char *outputFile) : mazeFileName(std::string(mazeFile)), outputFileName(std::string(outputFile)), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1), occurredError(false) {};
+	explicit GameManager(const char *mazeFile, const char *outputFile) : mazeFileName(std::string(mazeFile)), outputFileName(std::string(outputFile)), occurredError(false), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1) {};
 	virtual ~GameManager();
 	int startGame();
 };

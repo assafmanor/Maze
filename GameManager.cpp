@@ -1,17 +1,18 @@
 #include "GameManager.h"
+/*
+GameManager::GameManager(const char * mazeFile, const char * outputFile):mazeFileName(std::string(mazeFile)), outputFileName(std::string(outputFile)), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1), occurredError(false) {
 
+}*/
 
 GameManager::~GameManager() {
-
 	for (int i = 0; i < numOfRows; ++i)
 		delete maze[i];
 	delete[] maze;
-
 }
 
 int GameManager::startGame() {
 
-	if (processFiles(mazeFileName, outputFileName)) {
+	if (processFiles(mazeFileName)) {
 		std::cout << "FAILURE" << std::endl;
 		return FAILURE; // in case of failure no need to run the player
 	}
@@ -110,7 +111,7 @@ int GameManager::openOutputFile() {
 		return FAILURE;
 	return SUCCESS;
 }
-int GameManager::processFiles(const std::string mazeFilePath, const std::string outputFile) {
+int GameManager::processFiles(const std::string mazeFilePath) {
 
 	std::string line;
 	std::ifstream fin(mazeFilePath);
