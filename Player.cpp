@@ -26,7 +26,7 @@ MazeCell::MazeCell(const MazeCell &copied) {
 
 //////// CLASS: Player ////////
 
-Player::Player() : widthKnown(false), heightKnown(false), placedBookmark(false), directionChosen(false), mappedMaze() {
+Player::Player() : mappedMaze(), widthKnown(false), heightKnown(false), placedBookmark(false), directionChosen(false) {
 	//set seed for random
 	srand((int)time(NULL));
 	//add the starting cell to the memorized map
