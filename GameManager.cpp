@@ -78,6 +78,7 @@ int GameManager::startGame() {
 			std::cout << "FOUND TREASURE" << std::endl;
 			fout.close();
 			return SUCCESS;
+		case PLAYER:
 		case SPACE:
 			//updatePlayerPositionInMaze(nextPlayerLoc[0], nextPlayerLoc[1]);
 			playerRow = nextPlayerLoc[0];
@@ -134,7 +135,7 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 			occurredError = true;
 		}
 
-		//iniitalize the maze
+		//inititalize the maze
 		maze = new char*[numOfRows];
 		for (int i = 0; i < numOfRows; ++i)
 			maze[i] = new char[numOfCols];
@@ -145,17 +146,22 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 				int j = 0;
 				if (std::getline(fin, line)) {
 					for (int length = (int)line.length(); j < length; ++j) {
-						maze[i][j] = line[j];
+						if (line[j] == '\r') {
+							maze[i][j] = SPACE;
+						}
+						else {
+							maze[i][j] = line[j];
+						}
 
 						//counts the number of players and treasures provided
-						if (line[j] == '@') {
+						if (line[j] == PLAYER) {
 							++numOfPlayersProvided;
 							//update the location of the player
 							playerRow = i;
 							playerCol = j;
 							
 						}
-						if (line[j] == '$') ++numOfTreasuresProvided;
+						if (line[j] == TREASURE) ++numOfTreasuresProvided
 					}
 				}
 
@@ -240,10 +246,10 @@ void GameManager::printError(ErrorStatus error, std::string line, char c, size_t
 
 	switch (error) {
 	case ErrorStatus::Maze_File_Path:
-		std::cout << "Command line argument for maze:" << mazeFileName << "doesn't lead to a maze file or leads to a file that cannot be opened" << std::endl;
+		std::cout << "Command line argument for maze: " << mazeFileName << " doesn't lead to a maze file or leads to a file that cannot be opened" << std::endl;
 		break;
 	case ErrorStatus::output_File_Path:
-		std::cout << "Command line argument for output file:" << outputFileName << "points to a bad path or to a file that already exists" << std::endl;
+		std::cout << "Command line argument for output file: " << outputFileName << " points to a bad path or to a file that already exists" << std::endl;
 		break;
 	case ErrorStatus::MaxSteps_Format:
 		if (!occurredWrongFormat) {

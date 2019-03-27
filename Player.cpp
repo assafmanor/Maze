@@ -286,6 +286,7 @@ Direction Player::move() {
 			int numAvailable = 4 - cell.numOfLocsTried;
 			std::cout << "numAvailable = " << numAvailable << std::endl;
 			int randNum = rand() % numAvailable;
+			std::cout << "randNum = " << randNum << std::endl;
 			for (; randNum >= 0; chosenDir++) {
 				if (!cell.triedDirection[chosenDir]) randNum--;
 			}
@@ -332,7 +333,7 @@ Direction Player::move() {
 		}
 	}
 	lastDirection = nextDirection;
-	std::cout << "cell.numOfLocsTried: " << cell.numOfLocsTried << std::endl;
+	std::cout << "cell.numOfLocsTried: " << (int)cell.numOfLocsTried << std::endl;
 	return nextDirection;
 }
 
