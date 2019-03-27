@@ -63,7 +63,7 @@ class GameManager {
 	//void updatePlayerPositionInMaze(int newRow, int newCol);
 	//
 public:
-	explicit GameManager(const char *mazeFile, const char *outputFile) : mazeFileName(std::string(mazeFile)), outputFileName(std::string(outputFile)), occurredError(false), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1) {};
+	explicit GameManager(const char *mazeFile, const char *outputFile) : maze(nullptr), mazeFileName(std::string(mazeFile)), outputFileName(std::string(outputFile)), occurredError(false), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1) {};
 	virtual ~GameManager();
-	int startGame();
+	void startGame();
 };

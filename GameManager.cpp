@@ -1,16 +1,18 @@
 #include "GameManager.h"
 
 GameManager::~GameManager() {
-	for (int i = 0; i < numOfRows; ++i)
-		delete maze[i];
-	delete[] maze;
+	if (maze != nullptr) {
+		for (int i = 0; i < numOfRows; ++i)
+			delete maze[i];
+		delete[] maze;
+	}
 }
 
-int GameManager::startGame() {
+void GameManager::startGame() {
 
 	if (processFiles(mazeFileName)) {
 		std::cout << "FAILURE" << std::endl;
-		return FAILURE; // in case of failure no need to run the player
+		return; // in case of failure no need to run the player
 	}
 
 	//sanity check
@@ -20,7 +22,7 @@ int GameManager::startGame() {
 	Direction curMove;
 	int nextPlayerLoc[2];
 	for (int i = 0; i < maxSteps; ++i) {
-		std::cout << "Move #" << i + 1 << std::endl;
+		//std::cout << "Move #" << i + 1 << std::endl;
 		curMove = player.move();
 		//check if player has hit a wall, the bookmark or the treasure
 		char obstacle;
@@ -34,13 +36,13 @@ int GameManager::startGame() {
 				nextPlayerLoc[1] = playerCol - 1;
 			}
 			fout << "L" << std::endl;
-			std::cout << "\tWished to turn LEFT" << std::endl;
+			//std::cout << "\tWished to turn LEFT" << std::endl;
 			break;
 		case Direction::RIGHT:
 			nextPlayerLoc[0] = playerRow;
 			nextPlayerLoc[1] = (playerCol + 1) % numOfCols;
 			fout << "R" << std::endl;
-			std::cout << "\tWished to turn RIGHT" << std::endl;
+			//std::cout << "\tWished to turn RIGHT" << std::endl;
 			break;
 		case Direction::UP:
 			if (playerRow == 0) {
@@ -51,19 +53,19 @@ int GameManager::startGame() {
 			}
 			nextPlayerLoc[1] = playerCol;
 			fout << "U" << std::endl;
-			std::cout << "\tWished to turn UP" << std::endl;
+			//std::cout << "\tWished to turn UP" << std::endl;
 			break;
 		case Direction::DOWN:
 			nextPlayerLoc[0] = (playerRow + 1) % numOfRows;
 			nextPlayerLoc[1] = playerCol;
 			fout << "D" << std::endl;
-			std::cout << "\tWished to turn DOWN" << std::endl;
+			//std::cout << "\tWished to turn DOWN" << std::endl;
 			break;
 		default:
 			bookmarkRow = playerRow;
 			bookmarkCol = playerCol;
 			fout << "B" << std::endl;
-			std::cout << "\tBOOKMARK placed" << std::endl;
+			//std::cout << "\tBOOKMARK placed" << std::endl;
 			break;
 		}
 		if (curMove == Direction::BOOKMARK) continue;
@@ -77,7 +79,7 @@ int GameManager::startGame() {
 			fout << "!";
 			std::cout << "FOUND TREASURE" << std::endl;
 			fout.close();
-			return SUCCESS;
+			return;
 		case PLAYER:
 		case SPACE:
 			//updatePlayerPositionInMaze(nextPlayerLoc[0], nextPlayerLoc[1]);
@@ -86,15 +88,15 @@ int GameManager::startGame() {
 			if (nextPlayerLoc[0] == bookmarkRow && nextPlayerLoc[1] == bookmarkCol) {
 				player.hitBookmark();
 			}
-			std::cout << "after" << std::endl;
+			//std::cout << "after" << std::endl;
 			break;
 		}
-		std::cout << "\tCurrent location: (" << playerRow << "," << playerCol << ")." << std::endl;
-		player.printMaze();
+		//std::cout << "\tCurrent location: (" << playerRow << "," << playerCol << ")." << std::endl;
+		//player.printMaze();
 	}
 	fout << "X";
 	fout.close();
-	return SUCCESS;
+	//return SUCCESS;
 }
 /*
 void GameManager::updatePlayerPositionInMaze(int newRow, int newCol) {
@@ -135,12 +137,15 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 			occurredError = true;
 		}
 
-		//inititalize the maze
-		maze = new char*[numOfRows];
-		for (int i = 0; i < numOfRows; ++i)
-			maze[i] = new char[numOfCols];
+
 
 		if (!occurredError) {
+
+			//inititalize the maze
+			maze = new char*[numOfRows];
+			for (int i = 0; i < numOfRows; ++i)
+				maze[i] = new char[numOfCols];
+
 			//fill our maze with the given maze in the file
 			for (int i = 0; i < numOfRows; ++i) {
 				int j = 0;
@@ -159,9 +164,9 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 							//update the location of the player
 							playerRow = i;
 							playerCol = j;
-							
+
 						}
-						if (line[j] == TREASURE) ++numOfTreasuresProvided
+						if (line[j] == TREASURE) ++numOfTreasuresProvided;
 					}
 				}
 
@@ -202,20 +207,18 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 		}
 
 		fin.close();
-
 		//faild open output file
 		if (!occurredError && openOutputFile()) {
 			printError(ErrorStatus::output_File_Path);
 			occurredError = true;
 		}
-
 		if (occurredError) return FAILURE;
-		
+
 		return SUCCESS;
 	}
 	else {
 		printError(ErrorStatus::Maze_File_Path);
-		
+
 		/*
 		//faild open output file
 		if (openOutputFile())

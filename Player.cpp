@@ -55,7 +55,7 @@ Player::~Player() {
  * This method identifies the width/height and updates it.
  */
 void Player::hitBookmark() {
-	std::cout << "\t\tHIT BOOKMARK" << std::endl;
+	//std::cout << "\t\tHIT BOOKMARK" << std::endl;
 	Direction lastDirection = path.top();
 	int &rows = knownDimensions[0];
 	int &cols = knownDimensions[1];
@@ -72,18 +72,18 @@ void Player::hitBookmark() {
 		if (heightKnown) return;
 		heightKnown = true;
 		int tempRows = rows;
-		std::cout << "=======" << "curRow = " << curRow << std::endl;
+		//std::cout << "=======" << "curRow = " << curRow << std::endl;
 		rows = std::abs(curRow - bookmarkRow) - 1;
-		std::cout << "(*) rows = " << rows << std::endl;
+		//std::cout << "(*) rows = " << rows << std::endl;
 		int rowsToErase = tempRows - rows;
 		if (rowsToErase == 0) rowsToErase++;
-		std::cout << "(**) rowsToErase = " << rowsToErase << std::endl;
+		//std::cout << "(**) rowsToErase = " << rowsToErase << std::endl;
 		//fix coordinates
-		std::cout << "(***) bookmarkRow = " << bookmarkRow << std::endl;
+		//std::cout << "(***) bookmarkRow = " << bookmarkRow << std::endl;
 		if (lastDirection == Direction::UP) {
 			bookmarkRow = bookmarkRow - rowsToErase;
 			curRow = bookmarkRow;
-			std::cout << "bookmarkRow = " << bookmarkRow << std::endl;
+			//std::cout << "bookmarkRow = " << bookmarkRow << std::endl;
 			//remove the $rowsToErase highest rows
 			for (int i = rowsToErase; i > 0; i--) {
 				for (int j = 0; j <= cols; j++) {
@@ -97,7 +97,7 @@ void Player::hitBookmark() {
 		else { //Direction::DOWN
 			if (bookmarkRow > rows) bookmarkRow -= rowsToErase;
 			curRow = bookmarkRow;
-			std::cout << "bookmarkRow = " << bookmarkRow << std::endl;
+			//std::cout << "bookmarkRow = " << bookmarkRow << std::endl;
 			//remove the $rowsToErase lowest rows
 			for (int i = rowsToErase; i > 0; i--) {
 				for (int j = 0; j <= cols; j++) {
@@ -114,13 +114,13 @@ void Player::hitBookmark() {
 		widthKnown = true;
 		int tempCols = cols;
 		cols = std::abs(curCol - bookmarkCol) - 1;
-		std::cout << "(*) cols = " << cols << std::endl;
+		//std::cout << "(*) cols = " << cols << std::endl;
 		int colsToErase = tempCols - cols;
 		if (colsToErase == 0) colsToErase++;
-		std::cout << "(**) colsToErase = " << colsToErase << std::endl;
+		//std::cout << "(**) colsToErase = " << colsToErase << std::endl;
 		if (lastDirection == Direction::LEFT) {
 			bookmarkCol = bookmarkCol - colsToErase;
-			std::cout << "(***) bookmarkCol = " << bookmarkCol << std::endl;
+			//std::cout << "(***) bookmarkCol = " << bookmarkCol << std::endl;
 			curCol = bookmarkCol;
 			//remove the $colsToErase leftmost columns
 			for (int j = 0; j <= rows; j++) {
@@ -135,7 +135,7 @@ void Player::hitBookmark() {
 		}
 		else { //Direction::RIGHT
 			if (bookmarkCol > cols) bookmarkCol -= colsToErase;
-			std::cout << "(***) bookmarkCol = " << bookmarkCol << std::endl;
+			//std::cout << "(***) bookmarkCol = " << bookmarkCol << std::endl;
 			curCol = bookmarkCol;
 			//remove the $colsToErase rightmost columns
 			for (int j = 0; j <= rows; j++) {
@@ -156,14 +156,14 @@ void Player::hitBookmark() {
  *
  */
 void Player::hitWall() {
-	std::cout << "\t\tHIT WALL" << std::endl;
+	//std::cout << "\t\tHIT WALL" << std::endl;
 	// Cancel the last location update.
 	////std::cout << "hitWall(): 1" << std::endl;
 	MazeCell &cell = mappedMaze[curLocation[0]][curLocation[1]];
 	cell.obstacle = MazeObstacle::WALL;
 	directionChosen = false;
 	Direction lastDir = path.top();
-	std::cout << "(****) lastDir = " << lastDir << std::endl;
+	//std::cout << "(****) lastDir = " << lastDir << std::endl;
 	undoMove(lastDir);
 	path.pop();
 	if (curLocation[0] != bookmarkLoc[0] || curLocation[1] != bookmarkLoc[1]) { //check if the bookmark is at the same location as the player, and place it if it isn't
@@ -236,9 +236,9 @@ Direction Player::move() {
 	}
 
 	Direction nextDirection;
-	std::cout << "move(): 0" << std::endl;
+	//std::cout << "move(): 0" << std::endl;
 	std::string lDir = lastDirection == Direction::RIGHT ? "RIGHT" : (lastDirection == Direction::LEFT ? "LEFT" : (lastDirection == Direction::UP ? "UP" : (lastDirection == Direction::DOWN ? "DOWN" : "BOOKMARK")));
-	std::cout << "lastDirection = " << lDir << std::endl;
+	//std::cout << "lastDirection = " << lDir << std::endl;
 
 	if (!path.empty() && path.top() != Direction::BOOKMARK) {
 		switch (path.top()) {
@@ -265,7 +265,7 @@ Direction Player::move() {
 	}
 	//place a bookmark if the player is not at the same cell as the bookmark, he haven't placed one and he isn't backtracking
 	if ((bookmarkLoc[0] != curLocation[0] || bookmarkLoc[1] != curLocation[1]) && !placedBookmark && cell.numOfLocsTried < 4) {
-		std::cout << "move(): 1" << std::endl;
+		//std::cout << "move(): 1" << std::endl;
 		placedBookmark = true;
 		bookmarkLoc[0] = curLocation[0];
 		bookmarkLoc[1] = curLocation[1];
@@ -284,14 +284,14 @@ Direction Player::move() {
 		else if (cell.numOfLocsTried < 4) { //choose a random direction that wasn't tried yet
 			////std::cout << "move(): 1" << std::endl;
 			int numAvailable = 4 - cell.numOfLocsTried;
-			std::cout << "numAvailable = " << numAvailable << std::endl;
+			//std::cout << "numAvailable = " << numAvailable << std::endl;
 			int randNum = rand() % numAvailable;
-			std::cout << "randNum = " << randNum << std::endl;
+			//std::cout << "randNum = " << randNum << std::endl;
 			for (; randNum >= 0; chosenDir++) {
 				if (!cell.triedDirection[chosenDir]) randNum--;
 			}
 			chosenDir--;
-			std::cout << "chosenDir = " << chosenDir << std::endl;
+			//std::cout << "chosenDir = " << chosenDir << std::endl;
 			nextDirection = Direction(chosenDir);
 			if (cell.triedDirection[chosenDir]) {
 				std::cout << "ALERT ALERT ALERT ALERT ALERT ALERT ALERT ALERT ALERT ALERT ALERT ALERT ALERT ALERT" << std::endl;
@@ -302,7 +302,7 @@ Direction Player::move() {
 			directionChosen = true;
 		}
 		else { //backtrack the walked path
-			std::cout << "!!!!!!backtracking!!!!!!" << std::endl;
+			//std::cout << "!!!!!!backtracking!!!!!!" << std::endl;
 			directionChosen = false;
 			placedBookmark = false;
 			switch (path.top()) {
@@ -333,7 +333,7 @@ Direction Player::move() {
 		}
 	}
 	lastDirection = nextDirection;
-	std::cout << "cell.numOfLocsTried: " << (int)cell.numOfLocsTried << std::endl;
+	//std::cout << "cell.numOfLocsTried: " << (int)cell.numOfLocsTried << std::endl;
 	return nextDirection;
 }
 
