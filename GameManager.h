@@ -21,49 +21,94 @@
 
 
 //possible errors
-//some kind of logger might be the better choice
 enum class ErrorStatus {
 	Maze_File_Path, output_File_Path, MaxSteps_Format, Rows_Format, Cols_Format,
 	Missing_Player, Missing_Treasure, More_Than_One_Player, More_Than_One_Treasure, Wrong_Character
 };
 
 class GameManager {
-
-	// maybe a maze of calss cell (cell **maze) is a better choice
-	char **maze;
-	std::string nameOfMaze;
-	std::string mazeFileName, outputFileName;
-	Player player;
-	int playerRow, playerCol;
-	//std::size_t maxSteps;
-	int maxSteps;
-
-	bool occurredError;
-	bool occurredWrongFormat;
-	bool wrongMazeInput;
-	//std::size_t numOfRows;
-	//std::size_t numOfCols;
-	
-
-	int numOfPlayersProvided;
-	int numOfTreasuresProvided;
-
-	int numOfRows;
-	int numOfCols;
-	int bookmarkRow;
-	int bookmarkCol;
-
+	char **maze; //holds the maze given in the input file
+	std::string nameOfMaze; //holds the name of the maze given in the input file
+	std::string mazeFileName, outputFileName; //maze file path, output file path
+	Player player; 
+	int playerRow, playerCol; //the row and col of the player at any phase
+	int maxSteps; //holds the max number of steps the player can move
+	bool occurredError; //indicates whether error occurred while processing input files
+	bool occurredWrongFormat; //indicates whether Wrong Format given in the input file
+	bool wrongMazeInput; //indicates whether Wrong maze given in the input file
+	int numOfPlayersProvided; //holds the number of players given in the input maze
+	int numOfTreasuresProvided; //holds the number of Treasures given in the input maze
+	int numOfRows; //number of rows in the maze
+	int numOfCols; //number of cols in the maze
+	int bookmarkRow; //the row of the placed bookmark
+	int bookmarkCol; //the col of the placed bookmark
 	std::ofstream fout;
+	
+	/*
+	 * process the input files
+	 * maze file format:
+	 * Line 1: maze name 
+	 * Line 2: MaxSteps=<num> MaxSteps for solving this maze.
+	 * Line 3: Rows=<num> Number of Rows in maze.
+     * Line 4: Cols=<num> Number of Cols in maze.
+     * Lines 5 and on: the maze itself.
+	 * valid maze characters:
+	 * # - represents a wall
+	 * space - represents a pass
+	 * @ - represents the player in the maze (initial position of the player)
+	 * $ - represents the end of the maze (the treasure that we seek)
+	 * if there were errors while reading or analyzing the input file appropriate massage printed to the screen
+	 */
 	int processFiles(const std::string mazeFilePath);
+
+	/*
+	 * opens the output file
+	 * in case of success return SUCCESS(0) otherwise FAILURE(1)
+	 */
 	int openOutputFile();
+
+	/*
+	 *prints the maze the game manager holds
+	 */
 	void printMaze();
-	int extractNumFromString(std::string str, int &n, std::string firstWord, std::string secondWord);
+
+	/*
+	 * extract the number from received string of the form: "blabla = 5" 
+	 * checks that the first and the second words in the string indeed matches expected "firstWord" and "scondWord" 
+	 * checks that the extracted number greater than 0 
+	 * stores the result in the passed arg agument
+	 * in case of success return SUCCESS(0) otherwise FAILURE(1)
+	 */
+	int extractNumFromString(std::string str, int &arg, std::string firstWord, std::string secondWord);
+
+	/*
+	 * prints the error specified in ErrorStatus to the screen
+	 */
 	void printError(ErrorStatus error, std::string line = "", char c = ' ', std::size_t row = 0, std::size_t col = 0);
+
+	/*
+	 *checks whether the given char c is a valid maze character
+	 */
 	bool validCharacter(const char &c);
-	//void updatePlayerPositionInMaze(int newRow, int newCol);
-	//
 public:
+	/*
+	 * Constructor
+	 * first arg is the maze file
+	 * second arg is the output file
+	 */
 	explicit GameManager(const char *mazeFile, const char *outputFile) : maze(nullptr), mazeFileName(std::string(mazeFile)), outputFileName(std::string(outputFile)), occurredError(false), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1) {};
+
+	/*
+	 *simple destructor
+	 */
 	virtual ~GameManager();
+
+	/*
+	 * starts the game by processing the files
+	 * conduct interaction with the player
+	 * output to output file each step done by the player
+	 * and the result: X (in case of failing to solve the maze), ! (in case the maze was solved)
+	 * prints to screen the result 
+	 */
 	void startGame();
 };

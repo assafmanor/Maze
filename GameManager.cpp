@@ -11,12 +11,12 @@ GameManager::~GameManager() {
 void GameManager::startGame() {
 
 	if (processFiles(mazeFileName)) {
-		std::cout << "FAILURE" << std::endl;
+		//std::cout << "FAILURE" << std::endl;
 		return; // in case of failure no need to run the player
 	}
 
 	//sanity check
-	printMaze();
+	//printMaze();
 
 	//here: read moves from player...
 	Direction curMove;
@@ -75,14 +75,12 @@ void GameManager::startGame() {
 			player.hitWall();
 			break;
 		case TREASURE:
-			//updatePlayerPositionInMaze(nextPlayerLoc[0], nextPlayerLoc[1]);
 			fout << "!";
-			std::cout << "FOUND TREASURE" << std::endl;
+			std::cout << "Succeeded in " << i+1 << " steps";
 			fout.close();
 			return;
 		case PLAYER:
 		case SPACE:
-			//updatePlayerPositionInMaze(nextPlayerLoc[0], nextPlayerLoc[1]);
 			playerRow = nextPlayerLoc[0];
 			playerCol = nextPlayerLoc[1];
 			if (nextPlayerLoc[0] == bookmarkRow && nextPlayerLoc[1] == bookmarkCol) {
@@ -96,13 +94,8 @@ void GameManager::startGame() {
 	}
 	fout << "X";
 	fout.close();
-	//return SUCCESS;
+	std::cout << "Failed to solve maze in " << maxSteps << " steps";
 }
-/*
-void GameManager::updatePlayerPositionInMaze(int newRow, int newCol) {
-	maze[playerRow][playerCol] = SPACE;
-	maze[newRow][newCol] = PLAYER;
-}*/
 
 int GameManager::openOutputFile() {
 	fout.open(outputFileName);
@@ -136,8 +129,6 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 			printError(ErrorStatus::Cols_Format, line);
 			occurredError = true;
 		}
-
-
 
 		if (!occurredError) {
 
@@ -218,12 +209,6 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 	}
 	else {
 		printError(ErrorStatus::Maze_File_Path);
-
-		/*
-		//faild open output file
-		if (openOutputFile())
-			printError(ErrorStatus::output_File_Path);
-		*/
 		return FAILURE;
 	}
 }
@@ -315,7 +300,6 @@ void GameManager::printError(ErrorStatus error, std::string line, char c, size_t
 			std::cout << "Wrong character in maze: " << "TAB" << " in row " << row << ", " << "col " << col << std::endl;
 		else
 			std::cout << "Wrong character in maze: " << c << " in row " << row << ", " << "col " << col << std::endl;
-
 		break;
 	default:
 		break;
@@ -323,8 +307,8 @@ void GameManager::printError(ErrorStatus error, std::string line, char c, size_t
 
 }
 
-//extract the number from string of the form: "blabla = 5" or "blabla=5"
-//we need to make sure that this is the only form that can be provided
+
+
 int GameManager::extractNumFromString(std::string str, int &arg, std::string firstWord, std::string secondWord) {
 	std::vector<std::string> result;
 	std::istringstream iss(str);
@@ -334,9 +318,14 @@ int GameManager::extractNumFromString(std::string str, int &arg, std::string fir
 	//in case no space before and after the '='
 	if (result.size() == 1) {
 		if (result.at(0).find('=')) {
+			//checks that first word matches expected firstWord
+			if (result.at(0).substr(0, result.at(0).find("=")).compare(firstWord) != 0)
+				return FAILURE;
+			//try convert number represented as string to int 
 			try {
 				arg = std::stoi(result.at(0).substr(result.at(0).find('=') + 1));
 				if (arg <= 0)	return FAILURE;
+				return SUCCESS;
 
 			}
 			//if no conversion could be performed
@@ -344,8 +333,9 @@ int GameManager::extractNumFromString(std::string str, int &arg, std::string fir
 				(void)e; // avoid "unreferenced local variable e" warnings
 				return FAILURE;
 			}
+
 		}
-		return SUCCESS;
+		return FAILURE;
 	}
 	//otherwise must be 3 tokens/words
 	else if (result.size() != 3 || result.at(0).compare(firstWord) != 0 || result.at(1).compare(secondWord) != 0)
