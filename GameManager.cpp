@@ -15,18 +15,15 @@ void GameManager::startGame() {
 		return; // in case of failure no need to run the player
 	}
 
-	//sanity check
-	//printMaze();
-
-	//here: read moves from player...
+	//read moves from player for a maximum of $maxSteps steps
 	Direction curMove;
 	int nextPlayerLoc[2];
 	for (int i = 0; i < maxSteps; ++i) {
-		//std::cout << "Move #" << i + 1 << std::endl;
 		curMove = player.move();
 		//check if player has hit a wall, the bookmark or the treasure
 		char obstacle;
 		switch (curMove) {
+
 		case Direction::LEFT:
 			nextPlayerLoc[0] = playerRow;
 			if (playerCol == 0) {
@@ -36,14 +33,14 @@ void GameManager::startGame() {
 				nextPlayerLoc[1] = playerCol - 1;
 			}
 			fout << "L" << std::endl;
-			//std::cout << "\tWished to turn LEFT" << std::endl;
 			break;
+
 		case Direction::RIGHT:
 			nextPlayerLoc[0] = playerRow;
 			nextPlayerLoc[1] = (playerCol + 1) % numOfCols;
 			fout << "R" << std::endl;
-			//std::cout << "\tWished to turn RIGHT" << std::endl;
 			break;
+				
 		case Direction::UP:
 			if (playerRow == 0) {
 				nextPlayerLoc[0] = numOfRows - 1;
@@ -53,22 +50,23 @@ void GameManager::startGame() {
 			}
 			nextPlayerLoc[1] = playerCol;
 			fout << "U" << std::endl;
-			//std::cout << "\tWished to turn UP" << std::endl;
 			break;
+
 		case Direction::DOWN:
 			nextPlayerLoc[0] = (playerRow + 1) % numOfRows;
 			nextPlayerLoc[1] = playerCol;
 			fout << "D" << std::endl;
-			//std::cout << "\tWished to turn DOWN" << std::endl;
 			break;
-		default:
+
+		default: //Direction::BOOKMARK
 			bookmarkRow = playerRow;
 			bookmarkCol = playerCol;
 			fout << "B" << std::endl;
-			//std::cout << "\tBOOKMARK placed" << std::endl;
 			break;
 		}
-		if (curMove == Direction::BOOKMARK) continue;
+
+		//find out what is the obstacle on the cell that the player landed on
+		if (curMove == Direction::BOOKMARK) continue; //same cell -- no need to check
 		obstacle = maze[nextPlayerLoc[0]][nextPlayerLoc[1]];
 		switch (obstacle) {
 		case WALL:
@@ -79,19 +77,17 @@ void GameManager::startGame() {
 			std::cout << "Succeeded in " << i+1 << " steps";
 			fout.close();
 			return;
-		case PLAYER:
+		case PLAYER: //if the player has landed on the starting cell -- treat it as a space
 		case SPACE:
 			playerRow = nextPlayerLoc[0];
 			playerCol = nextPlayerLoc[1];
 			if (nextPlayerLoc[0] == bookmarkRow && nextPlayerLoc[1] == bookmarkCol) {
 				player.hitBookmark();
 			}
-			//std::cout << "after" << std::endl;
 			break;
 		}
-		//std::cout << "\tCurrent location: (" << playerRow << "," << playerCol << ")." << std::endl;
-		//player.printMaze();
 	}
+	//failed to solve maze in $maxSteps steps
 	fout << "X";
 	fout.close();
 	std::cout << "Failed to solve maze in " << maxSteps << " steps";
