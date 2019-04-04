@@ -40,7 +40,7 @@ void GameManager::startGame() {
 			nextPlayerLoc[1] = (playerCol + 1) % numOfCols;
 			fout << "R" << std::endl;
 			break;
-				
+
 		case Direction::UP:
 			if (playerRow == 0) {
 				nextPlayerLoc[0] = numOfRows - 1;
@@ -74,7 +74,7 @@ void GameManager::startGame() {
 			break;
 		case TREASURE:
 			fout << "!";
-			std::cout << "Succeeded in " << i+1 << " steps";
+			std::cout << "Succeeded in " << i + 1 << " steps";
 			fout.close();
 			return;
 		case PLAYER: //if the player has landed on the starting cell -- treat it as a space
@@ -94,6 +94,13 @@ void GameManager::startGame() {
 }
 
 int GameManager::openOutputFile() {
+	//check if the file already exist
+	std::ifstream infile(outputFileName);
+	if (infile.good()) {
+		infile.close();
+		return FAILURE;
+	}
+	infile.close();
 	fout.open(outputFileName);
 	if (!fout.is_open())
 		return FAILURE;
