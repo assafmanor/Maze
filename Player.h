@@ -28,7 +28,7 @@ class Player {
 	int knownDimensions[2] = { 0 , 0 }; 	// player's knowledge of the number of rows and columns. changes during the game
 	int curLocation[2] = { 0 , 0 };
 	int bookmarkLoc[2] = { -1,-1 };
-	bool widthKnown, heightKnown;
+	bool isWidthKnown, isHeightKnown;
 	bool placedBookmark;
 	bool directionChosen;
 

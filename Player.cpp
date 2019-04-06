@@ -34,7 +34,7 @@ MazeCell::MazeCell(const MazeCell &copied) {
 /*******************************/
 
 //Constructor
-Player::Player() : mappedMaze(), widthKnown(false), heightKnown(false), placedBookmark(false), directionChosen(false) {
+Player::Player() : mappedMaze(), isWidthKnown(false), isHeightKnown(false), placedBookmark(false), directionChosen(false) {
 	//set seed for random
 	srand((int)time(NULL));
 	//add the starting cell to the memorized map
@@ -53,7 +53,7 @@ Player::~Player() {}
  * Fixes the player's location, according to the value of dir.
  * For example: if dir==Direction::LEFT -- it moves the player one cell to the right.
  */
-void Player::undoMove(Direction dir) {
+void Player::undoMove(const Direction dir) {
 	switch (dir) {
 	case Direction::LEFT:
 		updateLocation(Direction::RIGHT);
@@ -76,14 +76,14 @@ void Player::undoMove(Direction dir) {
  * Updates the player's location according to the given direction.
  * Takes into consideration if the width/height are known and updates the location accordingly.
  */
-void Player::updateLocation(Direction dir) {
-	int &rows = knownDimensions[0];
-	int &cols = knownDimensions[1];
+void Player::updateLocation(const Direction dir) {
+	const int &rows = knownDimensions[0];
+	const int &cols = knownDimensions[1];
 	int &curRow = curLocation[0];
 	int &curCol = curLocation[1];
 	switch (dir) {
 	case Direction::UP:
-		if (heightKnown && curRow == 0) {
+		if (isHeightKnown && curRow == 0) {
 			curRow = rows;
 		}
 		else {
@@ -91,7 +91,7 @@ void Player::updateLocation(Direction dir) {
 		}
 		break;
 	case Direction::DOWN:
-		if (heightKnown && curRow == rows) {
+		if (isHeightKnown && curRow == rows) {
 			curRow = 0;
 		}
 		else {
@@ -99,7 +99,7 @@ void Player::updateLocation(Direction dir) {
 		}
 		break;
 	case Direction::LEFT:
-		if (widthKnown && curCol == 0) {
+		if (isWidthKnown && curCol == 0) {
 			curCol = cols;
 		}
 		else {
@@ -107,7 +107,7 @@ void Player::updateLocation(Direction dir) {
 		}
 		break;
 	case Direction::RIGHT:
-		if (widthKnown && curCol == cols) {
+		if (isWidthKnown && curCol == cols) {
 			curCol = 0;
 		}
 		else {
@@ -221,7 +221,7 @@ void Player::updateTriedFromOrigin(MazeCell &cell) {
  * This method identifies the width/height and updates it.
  */
 void Player::hitBookmark() {
-	Direction lastDirection = path.top();
+	const Direction lastDirection = path.top();
 	int &rows = knownDimensions[0];
 	int &cols = knownDimensions[1];
 	int &bookmarkRow = bookmarkLoc[0];
@@ -238,8 +238,8 @@ void Player::hitBookmark() {
 	//Fix the dimensions of the map, erase the needed rows or columns, update the player's and bookmark's location
 
 	if (lastDirection == Direction::UP || lastDirection == Direction::DOWN) {
-		if (heightKnown) return;
-		heightKnown = true;
+		if (isHeightKnown) return;
+		isHeightKnown = true;
 		int tempRows = rows;
 		//update the number of rows the maze has
 		rows = std::abs(curRow - bookmarkRow) - 1;
@@ -279,9 +279,9 @@ void Player::hitBookmark() {
 		}
 	}
 	else {
-		if (widthKnown) return;
-		widthKnown = true;
-		int tempCols = cols;
+		if (isWidthKnown) return;
+		isWidthKnown = true;
+		const int tempCols = cols;
 		//update the number of cols the maze has
 		cols = std::abs(curCol - bookmarkCol) - 1;
 		int colsToErase = tempCols - cols;
