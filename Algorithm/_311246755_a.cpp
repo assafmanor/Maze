@@ -34,7 +34,7 @@ MazeCell::MazeCell(const MazeCell &copied) {
 /*******************************/
 
 //Constructor
-Player::Player() : mappedMaze(), isWidthKnown(false), isHeightKnown(false), placedBookmark(false), directionChosen(false) {
+_311246755_a::_311246755_a() : mappedMaze(), isWidthKnown(false), isHeightKnown(false), placedBookmark(false), directionChosen(false) {
 	//set seed for random
 	srand((int)time(NULL));
 	//add the starting cell to the memorized map
@@ -46,26 +46,26 @@ Player::Player() : mappedMaze(), isWidthKnown(false), isHeightKnown(false), plac
 }
 
 //No memory is needed to be freed
-Player::~Player() {}
+_311246755_a::~_311246755_a() {}
 
 
 /**
  * Fixes the player's location, according to the value of dir.
  * For example: if dir==Direction::LEFT -- it moves the player one cell to the right.
  */
-void Player::undoMove(const Direction dir) {
+void _311246755_a::undoMove(const Move dir) {
 	switch (dir) {
-	case Direction::LEFT:
-		updateLocation(Direction::RIGHT);
+	case Move::LEFT:
+		updateLocation(Move::RIGHT);
 		break;
-	case Direction::RIGHT:
-		updateLocation(Direction::LEFT);
+	case Move::RIGHT:
+		updateLocation(Move::LEFT);
 		break;
-	case Direction::UP:
-		updateLocation(Direction::DOWN);
+	case Move::UP:
+		updateLocation(Move::DOWN);
 		break;
-	case Direction::DOWN:
-		updateLocation(Direction::UP);
+	case Move::DOWN:
+		updateLocation(Move::UP);
 		break;
 	default: //BOOKMARK. do nothing as it cannot get here.
 		break;
@@ -76,13 +76,13 @@ void Player::undoMove(const Direction dir) {
  * Updates the player's location according to the given direction.
  * Takes into consideration if the width/height are known and updates the location accordingly.
  */
-void Player::updateLocation(const Direction dir) {
+void _311246755_a::updateLocation(const Move dir) {
 	const int &rows = knownDimensions[0];
 	const int &cols = knownDimensions[1];
 	int &curRow = curLocation[0];
 	int &curCol = curLocation[1];
 	switch (dir) {
-	case Direction::UP:
+	case Move::UP:
 		if (isHeightKnown && curRow == 0) {
 			curRow = rows;
 		}
@@ -90,7 +90,7 @@ void Player::updateLocation(const Direction dir) {
 			curRow--;
 		}
 		break;
-	case Direction::DOWN:
+	case Move::DOWN:
 		if (isHeightKnown && curRow == rows) {
 			curRow = 0;
 		}
@@ -98,7 +98,7 @@ void Player::updateLocation(const Direction dir) {
 			curRow++;
 		}
 		break;
-	case Direction::LEFT:
+	case Move::LEFT:
 		if (isWidthKnown && curCol == 0) {
 			curCol = cols;
 		}
@@ -106,7 +106,7 @@ void Player::updateLocation(const Direction dir) {
 			curCol--;
 		}
 		break;
-	case Direction::RIGHT:
+	case Move::RIGHT:
 		if (isWidthKnown && curCol == cols) {
 			curCol = 0;
 		}
@@ -125,7 +125,7 @@ void Player::updateLocation(const Direction dir) {
  * Also updates the known dimensions, and the player's and bookmark's coordinates according to the updated map.
  * NOTE: this method should ALWAYS be used after a updateLocation() has been invoked.
  */
-void Player::updateMap() {
+void _311246755_a::updateMap() {
 	int &rows = knownDimensions[0];
 	int &cols = knownDimensions[1];
 	int &curRow = curLocation[0];
@@ -185,22 +185,22 @@ void Player::updateMap() {
 /*
  * Updates the current cell's triedDirection and numOfTriedDirs according to the direction the player came from
  */
-void Player::updateTriedFromOrigin(MazeCell &cell) {
-	if (!path.empty() && path.top() != Direction::BOOKMARK) {
+void _311246755_a::updateTriedFromOrigin(MazeCell &cell) {
+	if (!path.empty() && path.top() != Move::BOOKMARK) {
 		switch (path.top()) {
-		case Direction::LEFT:
+		case Move::LEFT:
 			if (!cell.triedDirection[1]) cell.numOfDirsTried++;
 			cell.triedDirection[1] = true; //Direction::RIGHT
 			break;
-		case Direction::RIGHT:
+		case Move::RIGHT:
 			if (!cell.triedDirection[0]) cell.numOfDirsTried++;
 			cell.triedDirection[0] = true; //Direction::LEFT
 			break;
-		case Direction::UP:
+		case Move::UP:
 			if (!cell.triedDirection[3]) cell.numOfDirsTried++;
 			cell.triedDirection[3] = true; //Direction::DOWN
 			break;
-		case Direction::DOWN:
+		case Move::DOWN:
 			if (!cell.triedDirection[2]) cell.numOfDirsTried++;
 			cell.triedDirection[2] = true; //Direction::UP
 			break;
@@ -220,8 +220,13 @@ void Player::updateTriedFromOrigin(MazeCell &cell) {
  * That means that the player now knows the width or height of the maze.
  * This method identifies the width/height and updates it.
  */
-void Player::hitBookmark() {
-	const Direction lastDirection = path.top();
+void _311246755_a::hitBookmark(int seq) {
+
+
+	/*TODO: use seq*/
+
+
+	const Move lastDirection = path.top();
 	int &rows = knownDimensions[0];
 	int &cols = knownDimensions[1];
 	int &bookmarkRow = bookmarkLoc[0];
@@ -237,7 +242,7 @@ void Player::hitBookmark() {
 
 	//Fix the dimensions of the map, erase the needed rows or columns, update the player's and bookmark's location
 
-	if (lastDirection == Direction::UP || lastDirection == Direction::DOWN) {
+	if (lastDirection == Move::UP || lastDirection == Move::DOWN) {
 		if (isHeightKnown) return;
 		isHeightKnown = true;
 		int tempRows = rows;
@@ -245,7 +250,7 @@ void Player::hitBookmark() {
 		rows = std::abs(curRow - bookmarkRow) - 1;
 		int rowsToErase = tempRows - rows;
 		if (rowsToErase == 0) rowsToErase++;
-		if (lastDirection == Direction::UP) {
+		if (lastDirection == Move::UP) {
 			bookmarkRow = bookmarkRow - rowsToErase;
 			//move player to the updated bookmark's location
 			curRow = bookmarkRow;
@@ -286,7 +291,7 @@ void Player::hitBookmark() {
 		cols = std::abs(curCol - bookmarkCol) - 1;
 		int colsToErase = tempCols - cols;
 		if (colsToErase == 0) colsToErase++;
-		if (lastDirection == Direction::LEFT) {
+		if (lastDirection == Move::LEFT) {
 			bookmarkCol = bookmarkCol - colsToErase;
 			//move player to the updated bookmark's location
 			curCol = bookmarkCol;
@@ -328,11 +333,11 @@ void Player::hitBookmark() {
  * Cancels the last direction change.
  * Updates the cell's obstacle to MazeObstacle::WALL, removes the last direction change from path, and fixes the player's location.
  */
-void Player::hitWall() {
+void _311246755_a::hitWall() {
 	MazeCell &cell = mappedMaze[curLocation[0]][curLocation[1]];
 	cell.obstacle = MazeObstacle::WALL;
 	directionChosen = false;
-	Direction lastDir = path.top();
+	Move lastDir = path.top();
 	undoMove(lastDir);
 	path.pop();
 	if (curLocation[0] != bookmarkLoc[0] || curLocation[1] != bookmarkLoc[1]) { //check if the bookmark is at the same location as the player, and place it if it isn't
@@ -345,15 +350,14 @@ void Player::hitWall() {
 /**
  *
  */
-Direction Player::move(int seq) {
+AbstractAlgorithm::Move _311246755_a::move() {
 
-
-	/*TODO: use seq*/
-
+	/*TODO: use bookmarks more often*/
+	
 
 
 	MazeCell &cell = mappedMaze[curLocation[0]][curLocation[1]];
-	Direction nextDirection;
+	Move nextDirection;
 
 	// change current cell.obstacle to SPACE, as the player is on it
 	if (cell.obstacle == MazeObstacle::UNKNOWN) {
@@ -367,7 +371,7 @@ Direction Player::move(int seq) {
 		placedBookmark = true;
 		bookmarkLoc[0] = curLocation[0];
 		bookmarkLoc[1] = curLocation[1];
-		nextDirection = Direction::BOOKMARK;
+		nextDirection = Move::BOOKMARK;
 	}
 	else {
 		int chosenDir = 0;
@@ -388,7 +392,7 @@ Direction Player::move(int seq) {
 			}
 			chosenDir--;
 
-			nextDirection = Direction(chosenDir);
+			nextDirection = Move(chosenDir);
 			directionChosen = true;
 			//update the cell's fields
 			cell.numOfDirsTried++;
@@ -398,17 +402,17 @@ Direction Player::move(int seq) {
 			directionChosen = false;
 			placedBookmark = false;
 			switch (path.top()) {
-			case Direction::LEFT:
-				nextDirection = Direction::RIGHT;
+			case Move::LEFT:
+				nextDirection = Move::RIGHT;
 				break;
-			case Direction::RIGHT:
-				nextDirection = Direction::LEFT;
+			case Move::RIGHT:
+				nextDirection = Move::LEFT;
 				break;
-			case Direction::UP:
-				nextDirection = Direction::DOWN;
+			case Move::UP:
+				nextDirection = Move::DOWN;
 				break;
-			case Direction::DOWN:
-				nextDirection = Direction::UP;
+			case Move::DOWN:
+				nextDirection = Move::UP;
 				break;
 			default:
 				break;
@@ -418,7 +422,7 @@ Direction Player::move(int seq) {
 	}
 
 	//update the player's location, add direction to path, and update map. do all of this only if the next direction is not a bookmark
-	if (nextDirection != Direction::BOOKMARK) {
+	if (nextDirection != Move::BOOKMARK) {
 		updateLocation(nextDirection);
 		if (directionChosen) {
 			path.push(nextDirection);
