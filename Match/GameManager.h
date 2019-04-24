@@ -5,6 +5,9 @@
 #include <vector>
 #include <sstream> 
 #include <string>
+#include <functional>
+#include <memory>
+#include "AbstractAlgorithm.h"
 //#include "Player.h"
 
 
@@ -30,7 +33,8 @@ class GameManager {
 	char **maze; //holds the maze given in the input file
 	std::string nameOfMaze; //holds the name of the maze given in the input file
 	std::string mazeFileName, outputFileName; //maze file path, output file path
-	Player player; 
+	//AbstractAlgorithm player;
+	std::unique_ptr<AbstractAlgorithm> player;
 	int playerRow, playerCol; //the row and col of the player at any phase
 	int maxSteps; //holds the max number of steps the player can move
 	bool occurredError; //indicates whether error occurred while processing input files
@@ -43,15 +47,15 @@ class GameManager {
 	int bookmarkRow; //the row of the placed bookmark
 	int bookmarkCol; //the col of the placed bookmark
 	std::ofstream fout;
-	
+
 	/*
 	 * process the input files
 	 * maze file format:
-	 * Line 1: maze name 
+	 * Line 1: maze name
 	 * Line 2: MaxSteps=<num> MaxSteps for solving this maze.
 	 * Line 3: Rows=<num> Number of Rows in maze.
-     * Line 4: Cols=<num> Number of Cols in maze.
-     * Lines 5 and on: the maze itself.
+	 * Line 4: Cols=<num> Number of Cols in maze.
+	 * Lines 5 and on: the maze itself.
 	 * valid maze characters:
 	 * # - represents a wall
 	 * space - represents a pass
@@ -73,9 +77,9 @@ class GameManager {
 	void printMaze();
 
 	/*
-	 * extract the number from received string of the form: "blabla = 5" 
-	 * checks that the first and the second words in the string indeed matches expected "firstWord" and "scondWord" 
-	 * checks that the extracted number greater than 0 
+	 * extract the number from received string of the form: "blabla = 5"
+	 * checks that the first and the second words in the string indeed matches expected "firstWord" and "scondWord"
+	 * checks that the extracted number greater than 0
 	 * stores the result in the passed arg agument
 	 * in case of success return SUCCESS(0) otherwise FAILURE(1)
 	 */
@@ -108,7 +112,7 @@ public:
 	 * conduct interaction with the player
 	 * output to output file each step done by the player
 	 * and the result: X (in case of failing to solve the maze), ! (in case the maze was solved)
-	 * prints to screen the result 
+	 * prints to screen the result
 	 */
 	void startGame();
 };

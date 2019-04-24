@@ -1,19 +1,28 @@
 #include <iostream>
 #include "GameManager.h"
+#include "MatchManager.h"
+
 
 int main(int argc, char **argv) {
-
-	if (argc < 2) {
-		std::cout << "Missing maze file argument in command line" << std::endl;
-		std::cout << "Missing output file argument in command line" << std::endl;
+	if (argc > 4) {
+		std::cout << "too many arguments in command line" << std::endl;
 		return 0;
 	}
+	//command line: match
+	else if (argc < 2) {
+		MatchManager match("./");
+	}
+	//command line: match [-maze_path <path>]
 	else if (argc < 3) {
-		std::cout << "Missing output file argument in command line" << std::endl;
-		return 0;
+		MatchManager match(argv[1]);
 	}
+	//command line: match [-maze_path <path>] [-algorithm_path <algorithm path>]
+	else if (argc < 4) {
+		MatchManager match(argv[1], argv[2]);
+	}
+	//command line: match [-maze_path <path>] [-algorithm_path <algorithm path>] [-output <output path>]
+	MatchManager match(argv[1], argv[2], argv[3]);
 
-	GameManager game(argv[1], argv[2]);
-	game.startGame();
+	match.startMatch();
 	return 0;
 }

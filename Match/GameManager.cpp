@@ -16,15 +16,15 @@ void GameManager::startGame() {
 	}
 
 	//read moves from player for a maximum of $maxSteps steps
-	Direction curMove;
+	AbstractAlgorithm::Move curMove;
 	int nextPlayerLoc[2];
 	for (int i = 0; i < maxSteps; ++i) {
-		curMove = player.move();
+		curMove = player.get()->move();
 		//check if player has hit a wall, the bookmark or the treasure
 		char obstacle;
 		switch (curMove) {
 
-		case Direction::LEFT:
+		case AbstractAlgorithm::Move::LEFT:
 			nextPlayerLoc[0] = playerRow;
 			if (playerCol == 0) {
 				nextPlayerLoc[1] = numOfCols - 1;
@@ -35,13 +35,13 @@ void GameManager::startGame() {
 			fout << "L" << std::endl;
 			break;
 
-		case Direction::RIGHT:
+		case AbstractAlgorithm::Move::RIGHT:
 			nextPlayerLoc[0] = playerRow;
 			nextPlayerLoc[1] = (playerCol + 1) % numOfCols;
 			fout << "R" << std::endl;
 			break;
 
-		case Direction::UP:
+		case AbstractAlgorithm::Move::UP:
 			if (playerRow == 0) {
 				nextPlayerLoc[0] = numOfRows - 1;
 			}
@@ -52,7 +52,7 @@ void GameManager::startGame() {
 			fout << "U" << std::endl;
 			break;
 
-		case Direction::DOWN:
+		case AbstractAlgorithm::Move::DOWN:
 			nextPlayerLoc[0] = (playerRow + 1) % numOfRows;
 			nextPlayerLoc[1] = playerCol;
 			fout << "D" << std::endl;
@@ -66,11 +66,11 @@ void GameManager::startGame() {
 		}
 
 		//find out what is the obstacle on the cell that the player landed on
-		if (curMove == Direction::BOOKMARK) continue; //same cell -- no need to check
+		if (curMove == AbstractAlgorithm::Move::BOOKMARK) continue; //same cell -- no need to check
 		obstacle = maze[nextPlayerLoc[0]][nextPlayerLoc[1]];
 		switch (obstacle) {
 		case WALL:
-			player.hitWall();
+			player.get()->hitWall();
 			break;
 		case TREASURE:
 			fout << "!";
@@ -82,7 +82,7 @@ void GameManager::startGame() {
 			playerRow = nextPlayerLoc[0];
 			playerCol = nextPlayerLoc[1];
 			if (nextPlayerLoc[0] == bookmarkRow && nextPlayerLoc[1] == bookmarkCol) {
-				player.hitBookmark();
+				player.get()->hitBookmark(0); //chage the hardcoded zero
 			}
 			break;
 		}

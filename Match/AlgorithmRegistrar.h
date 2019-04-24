@@ -4,15 +4,15 @@
 #include <list>
 #include <functional>
 #include <memory>
-#include <Algorithm\AbstractAlgorithm.h>
+#include "AbstractAlgorithm.h"
 #include <cassert>
 
 
-enum RegistrationStatus { ALGORITHM_REGISTERED_SUCCESSFULLY = 0, FILE_CANNOT_BE_LOADED = -1, NO_ALGORITHM_REGISTERED = -2};
+enum RegistrationStatus { ALGORITHM_REGISTERED_SUCCESSFULLY = 0, FILE_CANNOT_BE_LOADED = -1, NO_ALGORITHM_REGISTERED = -2 };
 
 
 class AlgorithmRegistrar {
-//private:
+	//private:
 	std::list<std::string> algorithmNames;
 
 	std::list <std::function<std::unique_ptr<AbstractAlgorithm>()>> algorithmFactories;

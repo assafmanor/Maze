@@ -4,7 +4,7 @@
 
 #include <functional>
 #include <memory>
-#include <Algorithm\AbstractAlgorithm.h>
+#include "AbstractAlgorithm.h"
 
 class AlgorithmRegistration {
 public:
