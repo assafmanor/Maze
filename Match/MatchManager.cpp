@@ -1,14 +1,15 @@
 #include "MatchManager.h"
 
-
+/*
 MatchManager::~MatchManager() {
 
 }
-
-
+*/
+/*
 MatchManager::MatchManager(const MatchManager&) {
 
 }
+*/
 
 void MatchManager::startMatch() {
 	//parse command line args, in case of error we do not proceed
@@ -25,12 +26,16 @@ void MatchManager::startMatch() {
 	//run all Algorithms on all mazes and store the scores
 	for (int i = 0; i < numOfAlgorithms; ++i) {
 		for (int j = 0; j < numOfMazes; ++j) {
-			//GameManager game(mazesFullNames.at(j), mazesNames.at(j)+ algorithmsNames.at(i));	
-			//scores.at(i).at(j) = game.startGame();
+			GameManager game(mazesFullNames.at(j), mazesFullNames.at(j)+algorithmsNames.at(i)+".output");	
+			if ((scores.at(i).at(j) = game.startGame()) == -2) {
+				std::cout << "Failed Processing the maze: " << mazesFullNames.at(j)<< std::endl;
+				break;
+			}
+
 		}
 
 	}
-	//print scores...
+	printScoresTable(); 
 
 }
 
@@ -39,6 +44,7 @@ void MatchManager::extractFullMazesName() {
 	for (const auto & entry : std::filesystem::directory_iterator(mazesPath))
 		mazesFullNames.push_back(entry.path().string());
 }
+
 
 void MatchManager::extractMazesName() {
 	std::string delimiter = "/";
@@ -50,6 +56,46 @@ void MatchManager::extractMazesName() {
 		}
 		mazesNames.push_back(s);
 	}
+}
+
+void MatchManager::printScoresTable() {
+	//calculate the max name size from the mazes  
+	int maxMaze = 0;
+	int currSize;
+	for (int i = 0; i < numOfMazes; ++i) {
+		currSize = mazesNames.at(i).size();
+		if (currSize > maxMaze)	maxMaze = currSize;
+	}
+
+	//calculate the max name size from the algorithms  
+	int maxAlgo = 0;
+	for (int i = 0; i < numOfAlgorithms; ++i) {
+		currSize = algorithmsNames.at(i).size();
+		if (currSize > maxAlgo)	maxAlgo = currSize;
+	}
+	int maxName = maxMaze > maxAlgo ? maxMaze : maxAlgo;
+
+	const std::string sep = "|";
+	const int total_width = (numOfMazes+1) * maxName + numOfMazes +2 + numOfMazes + 1;
+	const std::string line = std::string(total_width+2, '-');
+	const std::string empty = std::string(maxName+1, ' ');
+	std::cout << line << std::endl;
+	std::cout << sep << std::setw(maxName + 1) << empty << "  ";
+	for (int i = 0; i < numOfMazes; ++i) {
+		std::cout << sep << std::setw(maxName) << mazesNames.at(i) + " ";
+	}
+	std::cout << sep << std::endl;
+	std::cout << line << std::endl;
+	for (int i = 0; i < numOfAlgorithms; ++i) {
+		std::cout << sep << std::setw(maxName + 1) << algorithmsNames.at(i) + " ";
+		for (int j = 0; j < numOfMazes; ++j) {
+			std::cout << sep << std::setw(maxName + 1) << scores.at(i).at(j);
+		}
+		std::cout << sep << std::endl;
+		std::cout << line << std::endl;
+	}
+
+
 }
 
 int MatchManager::processCommandLineInput() {

@@ -8,11 +8,11 @@ GameManager::~GameManager() {
 	}
 }
 
-void GameManager::startGame() {
+int GameManager::startGame() {
 
 	if (processFiles(mazeFileName)) {
 		//std::cout << "FAILURE" << std::endl;
-		return; // in case of failure no need to run the player
+		return -2; // in case of failure no need to run the player
 	}
 
 	//read moves from player for a maximum of $maxSteps steps
@@ -76,7 +76,7 @@ void GameManager::startGame() {
 			fout << "!";
 			std::cout << "Succeeded in " << i + 1 << " steps";
 			fout.close();
-			return;
+			return  i + 1;
 		case PLAYER: //if the player has landed on the starting cell -- treat it as a space
 		case SPACE:
 			playerRow = nextPlayerLoc[0];
@@ -91,6 +91,7 @@ void GameManager::startGame() {
 	fout << "X";
 	fout.close();
 	std::cout << "Failed to solve maze in " << maxSteps << " steps";
+	return -1;
 }
 
 int GameManager::openOutputFile() {

@@ -100,7 +100,7 @@ public:
 	 * first arg is the maze file
 	 * second arg is the output file
 	 */
-	explicit GameManager(const char *mazeFile, const char *outputFile) : maze(nullptr), mazeFileName(std::string(mazeFile)), outputFileName(std::string(outputFile)), occurredError(false), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1) {};
+	explicit GameManager(const std::string mazeFile, const std::string outputFile) : maze(nullptr), mazeFileName(mazeFile), outputFileName(outputFile), occurredError(false), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1) {};
 
 	/*
 	 *simple destructor
@@ -113,6 +113,7 @@ public:
 	 * output to output file each step done by the player
 	 * and the result: X (in case of failing to solve the maze), ! (in case the maze was solved)
 	 * prints to screen the result
+	 * return number of steps the algo has taken
 	 */
-	void startGame();
+	int startGame();
 };
