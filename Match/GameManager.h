@@ -33,8 +33,8 @@ class GameManager {
 	char **maze; //holds the maze given in the input file
 	std::string nameOfMaze; //holds the name of the maze given in the input file
 	std::string mazeFileName, outputFileName; //maze file path, output file path
-	//AbstractAlgorithm player;
-	std::unique_ptr<AbstractAlgorithm> player;
+	std::unique_ptr<AbstractAlgorithm> &player;
+	std::vector< std::vector<std::unique_ptr<char>>> m;
 	int playerRow, playerCol; //the row and col of the player at any phase
 	int maxSteps; //holds the max number of steps the player can move
 	bool occurredError; //indicates whether error occurred while processing input files
@@ -100,7 +100,7 @@ public:
 	 * first arg is the maze file
 	 * second arg is the output file
 	 */
-	explicit GameManager(const std::string mazeFile, const std::string outputFile) : maze(nullptr), mazeFileName(mazeFile), outputFileName(outputFile), occurredError(false), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1) {};
+	explicit GameManager(const std::string mazeFile, const std::string outputFile, std::unique_ptr<AbstractAlgorithm> &_player) : maze(nullptr), mazeFileName(mazeFile), outputFileName(outputFile), player(_player), occurredError(false), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1) {};
 
 	/*
 	 *simple destructor

@@ -14,19 +14,22 @@ MatchManager::MatchManager(const MatchManager&) {
 void MatchManager::startMatch() {
 	//parse command line args, in case of error we do not proceed
 	if (processCommandLineInput()) return;
+	/**
 	//temporary hard coded 2 algo
 	ListOfAlgorithms.push_back(std::make_unique<_311246755_a>());
 	algorithmsNames.push_back("_311246755_A");
 	ListOfAlgorithms.push_back(std::make_unique<_311246755_a>());
 	algorithmsNames.push_back("_311246755_B");
+	*/
 	extractFullMazesName();
 	extractMazesName();
+	/*
 	numOfMazes = mazesFullNames.size();
 	numOfAlgorithms = ListOfAlgorithms.size();
 	//run all Algorithms on all mazes and store the scores
 	for (int i = 0; i < numOfAlgorithms; ++i) {
 		for (int j = 0; j < numOfMazes; ++j) {
-			GameManager game(mazesFullNames.at(j), mazesFullNames.at(j)+algorithmsNames.at(i)+".output");	
+			GameManager game(mazesFullNames.at(j), mazesFullNames.at(j)+algorithmsNames.at(i)+".output", ListOfAlgorithms.at(i).get());
 			if ((scores.at(i).at(j) = game.startGame()) == -2) {
 				std::cout << "Failed Processing the maze: " << mazesFullNames.at(j)<< std::endl;
 				break;
@@ -34,8 +37,50 @@ void MatchManager::startMatch() {
 
 		}
 
+	}*/
+	AlgorithmRegistrar& registrar = AlgorithmRegistrar::getInstance();
+	std::string path = "";
+	std::string algorithmSoFileNames[] = { "algorithm1", "algorithm2" };
+	//loading each algorithm "numOfMazes" times
+	for (const auto& algorithmSoFileName : algorithmSoFileNames) {
+		for (int j = 0; j < numOfMazes; ++j) {
+			int result = registrar.loadAlgorithm(path, algorithmSoFileName);
+			if (result != RegistrationStatus::ALGORITHM_REGISTERED_SUCCESSFULLY) {
+				// TODO: handle errors in loading algorithm - add it to list of errors
+			}
+
+		}
+
 	}
-	printScoresTable(); 
+	if (registrar.size() == 0) {
+		// TODO: no algorithms loaded - print usage etc.
+	}
+	// below is a mockup of running the simulation
+	auto algorithms = registrar.getAlgorithms();
+	auto& algorithmNames = registrar.getAlgorithmNames();
+
+	numOfMazes = mazesFullNames.size();
+	numOfAlgorithms = algorithms.size();
+
+	auto pName = algorithmNames.begin();
+	auto algos = algorithms.begin();
+	std::vector<std::vector<int>> scores(numOfAlgorithms, std::vector<int>(numOfMazes,0));
+	
+	//run all Algorithms on all mazes and store the scores
+	for (int i = 0; i < numOfAlgorithms; ++i) {
+		for (int j = 0; j < numOfMazes; ++j) {
+			GameManager game(mazesFullNames.at(j), mazesFullNames.at(j) + *(pName++) + ".output", *(algos++));
+			if ((scores.at(i).at(j) = game.startGame()) == -2) {
+				std::cout << "Failed Processing the maze: " << mazesFullNames.at(j) << std::endl;
+				break;
+			}
+
+		}
+
+	}
+
+
+	printScoresTable(scores);
 
 }
 
@@ -58,7 +103,7 @@ void MatchManager::extractMazesName() {
 	}
 }
 
-void MatchManager::printScoresTable() {
+void MatchManager::printScoresTable(std::vector<std::vector<int>> scores) {
 	//calculate the max name size from the mazes  
 	int maxMaze = 0;
 	int currSize;

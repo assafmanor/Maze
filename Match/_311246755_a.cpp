@@ -40,7 +40,7 @@ _311246755_a::_311246755_a() : mappedMaze(), isWidthKnown(false), isHeightKnown(
 	//add the starting cell to the memorized map
 	std::vector<MazeCell> firstRow;
 	MazeCell firstCell;
-	firstCell.obstacle = MazeObstacle::SPACEE;
+	firstCell.obstacle = MazeObstacle::SPACE;
 	firstRow.push_back(firstCell);
 	mappedMaze.push_back(firstRow);
 }
@@ -335,7 +335,7 @@ void _311246755_a::hitBookmark(int seq) {
  */
 void _311246755_a::hitWall() {
 	MazeCell &cell = mappedMaze[curLocation[0]][curLocation[1]];
-	cell.obstacle = MazeObstacle::WALLL;
+	cell.obstacle = MazeObstacle::WALL;
 	directionChosen = false;
 	Move lastDir = path.top();
 	undoMove(lastDir);
@@ -361,7 +361,7 @@ AbstractAlgorithm::Move _311246755_a::move() {
 
 	// change current cell.obstacle to SPACE, as the player is on it
 	if (cell.obstacle == MazeObstacle::UNKNOWN) {
-		cell.obstacle = MazeObstacle::SPACEE;
+		cell.obstacle = MazeObstacle::SPACE;
 	}
 
 	updateTriedFromOrigin(cell);

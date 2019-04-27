@@ -7,7 +7,7 @@
 #include <stack>	/* std::stack	*/
 
 //after the dynamic registration need to change back WALLL to WALL and SPACEE to SPACE
-enum MazeObstacle { UNKNOWN = 0, WALLL, SPACEE };
+enum MazeObstacle { UNKNOWN = 0, WALL, SPACE };
 
 
 class MazeCell {

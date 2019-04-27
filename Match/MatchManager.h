@@ -12,8 +12,10 @@
 #include <iomanip>
 #include "AbstractAlgorithm.h"
 #include "GameManager.h"
+#include "AlgorithmRegistrar.h"
 
-#include "_311246755_a.h" // should be deleted when  dynamic registration implemented
+
+//#include "_311246755_a.h" // should be deleted when  dynamic registration implemented
 
 #define SUCCESS 0
 #define FAILURE 1
@@ -31,10 +33,9 @@ class MatchManager {
 
 	std::string mazesPath, algorithmsPath, outputPath;
 	//std::map<std::string, std::function<std::unique_ptr<AbstractAlgorithm>()>> Factory;
-	std::list<std::unique_ptr<AbstractAlgorithm>> ListOfAlgorithms;
+	std::vector<std::unique_ptr<AbstractAlgorithm>> ListOfAlgorithms;
 	std::vector<std::string> algorithmsNames;
 	//holds the scores of each algo, scoers[i][j] is the score of algo number i on maze j
-	std::vector<std::vector<int>> scores;
 	int numOfMazes, numOfAlgorithms;
 
 	int processCommandLineInput();
@@ -42,7 +43,7 @@ class MatchManager {
 	void printError(Errors error, std::string input, std::string validFormat);
 	void extractFullMazesName();
 	void extractMazesName();
-	void printScoresTable();
+	void printScoresTable(std::vector<std::vector<int>> scores);
 
 public:
 	MatchManager(const char *_mazesPath = "./", const char *_algorithmsPath = "./", const char *_outputPath = "./") : mazesPath(std::string(_mazesPath)), algorithmsPath(std::string(_algorithmsPath)), outputPath(std::string(_outputPath)) {}; //constructor
