@@ -30,11 +30,21 @@ enum class ErrorStatus {
 };
 
 class GameManager {
-	char **maze; //holds the maze given in the input file
+
+	class Cell {
+	public:
+		char Obstacle; 
+		int bookmarSerial;
+		Cell() :Obstacle(' '), bookmarSerial(0) {};
+
+	};
+
+	//char **maze; //holds the maze given in the input file
+	std::vector< std::vector<std::unique_ptr<Cell>>> maze;
 	std::string nameOfMaze; //holds the name of the maze given in the input file
 	std::string mazeFileName, outputFileName; //maze file path, output file path
 	std::unique_ptr<AbstractAlgorithm> &player;
-	std::vector< std::vector<std::unique_ptr<char>>> m;
+	
 	int playerRow, playerCol; //the row and col of the player at any phase
 	int maxSteps; //holds the max number of steps the player can move
 	bool occurredError; //indicates whether error occurred while processing input files
@@ -46,6 +56,7 @@ class GameManager {
 	int numOfCols; //number of cols in the maze
 	int bookmarkRow; //the row of the placed bookmark
 	int bookmarkCol; //the col of the placed bookmark
+	int currBookmarSerial;
 	std::ofstream fout;
 
 	/*
@@ -100,12 +111,12 @@ public:
 	 * first arg is the maze file
 	 * second arg is the output file
 	 */
-	explicit GameManager(const std::string mazeFile, const std::string outputFile, std::unique_ptr<AbstractAlgorithm> &_player) : maze(nullptr), mazeFileName(mazeFile), outputFileName(outputFile), player(_player), occurredError(false), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1) {};
+	explicit GameManager(const std::string mazeFile, const std::string outputFile, std::unique_ptr<AbstractAlgorithm> &_player) : mazeFileName(mazeFile), outputFileName(outputFile), player(_player), occurredError(false), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1), currBookmarSerial(0){};
 
 	/*
 	 *simple destructor
 	 */
-	virtual ~GameManager();
+	//virtual ~GameManager();
 
 	/*
 	 * starts the game by processing the files
