@@ -11,7 +11,7 @@ MatchManager::MatchManager(const MatchManager&) {
 }
 */
 
-void MatchManager::startMatch() {
+int MatchManager::startMatch() {
 	//parse command line args, in case of error we do not proceed
 	if (processCommandLineInput()) return;
 	/**
@@ -23,6 +23,11 @@ void MatchManager::startMatch() {
 	*/
 	extractFullMazesName();
 	extractMazesName();
+
+	//sanity check: assert vector lengths are of equal size
+	assert(mazesFullNames.size() == mazesNames.size());
+
+
 	/*
 	numOfMazes = mazesFullNames.size();
 	numOfAlgorithms = ListOfAlgorithms.size();
@@ -45,17 +50,23 @@ void MatchManager::startMatch() {
 	for (const auto& algorithmSoFileName : algorithmSoFileNames) {
 		for (int j = 0; j < numOfMazes; ++j) {
 			int result = registrar.loadAlgorithm(path, algorithmSoFileName);
-			if (result != RegistrationStatus::ALGORITHM_REGISTERED_SUCCESSFULLY) {
-				// TODO: handle errors in loading algorithm - add it to list of errors
+			if (result == RegistrationStatus::FILE_CANNOT_BE_LOADED) {
+				printError(Errors::algorithm_cannot_be_loaded, algorithmSoFileName, "");
+				return FAILURE;
 			}
-
+			if (result == RegistrationStatus::NO_ALGORITHM_REGISTERED) {
+				printError(Errors::algorithm_not_registered, algorithmSoFileName, "");
+				return FAILURE;
+			}
 		}
 
 	}
 	if (registrar.size() == 0) {
 		// TODO: no algorithms loaded - print usage etc.
+		// TOOD: for Oleg: i'm not sure what you mean by print usage etc.
+		return FAILURE;
 	}
-	// below is a mockup of running the simulation
+
 	auto algorithms = registrar.getAlgorithms();
 	auto& algorithmNames = registrar.getAlgorithmNames();
 
@@ -79,7 +90,6 @@ void MatchManager::startMatch() {
 
 	}
 
-
 	printScoresTable(scores);
 
 }
@@ -92,7 +102,7 @@ void MatchManager::extractFullMazesName() {
 
 
 void MatchManager::extractMazesName() {
-	std::string delimiter = "/";
+	const std::string delimiter = "/";
 	for (int j = 0; j < numOfMazes; ++j) {
 		std::string s = mazesFullNames.at(j);
 		size_t pos = 0;
@@ -145,7 +155,7 @@ void MatchManager::printScoresTable(std::vector<std::vector<int>> scores) {
 
 int MatchManager::processCommandLineInput() {
 	if (extractPathFromString(mazesPath, "-maze_path")) {
-		printError(Errors::Maze_Path, mazesPath, "-maze_path <path>");
+		printError(Errors::maze_path, mazesPath, "-maze_path <path>");
 		return FAILURE;
 	}
 	if (extractPathFromString(algorithmsPath, "-algorithm_path")) {
@@ -174,7 +184,7 @@ int MatchManager::extractPathFromString(std::string &str, std::string tag) {
 void MatchManager::printError(Errors error, std::string input, std::string validFormat) {
 
 	switch (error) {
-	case Errors::Maze_Path:
+	case Errors::maze_path:
 		std::cout << "Wrong command line argument for maze" << std::endl;
 		std::cout << "provided: " << input << std::endl;
 		std::cout << "expected: " << validFormat << std::endl;
@@ -189,6 +199,12 @@ void MatchManager::printError(Errors error, std::string input, std::string valid
 		std::cout << "provided: " << input << std::endl;
 		std::cout << "expected: " << validFormat << std::endl;
 		break;
+	case Errors::algorithm_cannot_be_loaded:
+		std::cout << "Algorithm could not be loaded." << std::endl;
+		std::cout << "provided: " << input;
+	case Errors::algorithm_not_registered:
+		std::cout << "Algorithm could not be registered..";
+		std::cout << "provided: " << input;
 	default:
 		break;
 	}

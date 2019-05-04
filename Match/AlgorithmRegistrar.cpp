@@ -14,15 +14,16 @@ void AlgorithmRegistrar::registerAlgorithm(std::function<std::unique_ptr<Abstrac
  */
 RegistrationStatus AlgorithmRegistrar::loadAlgorithm(const std::string& path, const std::string& so_file_name_without_so_suffix) {
 	size_t size = instance.size();
+	void *handle;
 	/*TEMP*/bool someBool = true;
 
-	//TODO: load the .so file
-	if (someBool/*something*/) {
-		//do something
-	}
-	else {
+	//try to load the .so file
+	handle = dlopen(path,  RTLD_LAZY);
+	if(!handle) {
 		return FILE_CANNOT_BE_LOADED;
 	}
+	//after opening the .so file, registerAlgorithm should be called from inside the .so.
+	//if for some reason it wasn't called, the instance size should remain the same.
 	if (instance.size() == size) {
 		return NO_ALGORITHM_REGISTERED;
 	}

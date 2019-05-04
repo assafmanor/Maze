@@ -22,7 +22,7 @@
 
 //possible errors
 enum class Errors {
-	Maze_Path, algorithm_path, output_path
+	maze_path, output_path, algorithm_path, algorithm_cannot_be_loaded, algorithm_not_registered
 };
 
 
@@ -52,7 +52,7 @@ public:
 	//virtual ~MatchManager(); //destructor
 	//MatchManager(const MatchManager&); //copy constructor
 	MatchManager(MatchManager&&) = default; //move constructor
-	void startMatch();
+	int startMatch();
 
 
 
