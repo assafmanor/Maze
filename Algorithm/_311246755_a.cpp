@@ -222,6 +222,9 @@ void _311246755_a::updateTriedFromOrigin(MazeCell &cell) {
  */
 void _311246755_a::hitBookmark(int seq) {
 
+	if (seq > 100000000) {
+		std::cout << "just for debugging" << std::endl;
+	}
 
 	/*TODO: use seq*/
 

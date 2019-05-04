@@ -15,10 +15,9 @@ void AlgorithmRegistrar::registerAlgorithm(std::function<std::unique_ptr<Abstrac
 RegistrationStatus AlgorithmRegistrar::loadAlgorithm(const std::string& path, const std::string& so_file_name_without_so_suffix) {
 	size_t size = instance.size();
 	void *handle;
-	/*TEMP*/bool someBool = true;
 
 	//try to load the .so file
-	handle = dlopen(path,  RTLD_LAZY);
+	handle = dlopen(path.c_str(),  RTLD_LAZY);
 	if(!handle) {
 		return FILE_CANNOT_BE_LOADED;
 	}

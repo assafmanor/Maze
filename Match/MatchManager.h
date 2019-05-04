@@ -6,7 +6,7 @@
 #include <functional>
 #include <memory>
 #include <iostream>
-#include <filesystem>
+#include<filesystem>
 #include <fstream>
 #include <sstream> 
 #include <iomanip>
@@ -43,7 +43,7 @@ class MatchManager {
 	void printError(Errors error, std::string input, std::string validFormat);
 	void extractFullMazesName();
 	void extractMazesName();
-	void extractAlgorithmNames(std::vector<std::string>&);
+	void extractAlgorithmNames(std::list<std::string>&);
 	void printScoresTable(std::vector<std::vector<int>> scores);
 
 public:

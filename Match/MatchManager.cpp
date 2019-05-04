@@ -13,7 +13,7 @@ MatchManager::MatchManager(const MatchManager&) {
 
 int MatchManager::startMatch() {
 	//parse command line args, in case of error we do not proceed
-	if (processCommandLineInput()) return;
+	if (processCommandLineInput()) return FAILURE;
 	/**
 	//temporary hard coded 2 algo
 	ListOfAlgorithms.push_back(std::make_unique<_311246755_a>());
@@ -68,7 +68,7 @@ int MatchManager::startMatch() {
 	auto& algorithmNames = registrar.getAlgorithmNames();
 
 	numOfMazes = mazesFullNames.size();
-	numOfAlgorithms = algorithms.size();
+	numOfAlgorithms = registrar.size();
 
 	std::vector<std::vector<int>> scores(numOfAlgorithms, std::vector<int>(numOfMazes,0));
 	
@@ -88,6 +88,8 @@ int MatchManager::startMatch() {
 
 	printScoresTable(scores);
 
+	return SUCCESS;
+
 }
 
 // listing the files in a directory and add them to our vector of names
@@ -101,13 +103,13 @@ void MatchManager::extractAlgorithmNames(std::list<std::string> &names) {
 	std::string fullPath;
 	for (const auto& entry : std::filesystem::directory_iterator(algorithmsPath)) {
 		fullPath = entry.path().string();
-		size_t lastDot = path.find_last_of(".");
+		size_t lastDot = fullPath.find_last_of(".");
 		// add filename to vector if it ends with an ".so" extension
 		if (lastDot > 0 && lastDot != std::string::npos && fullPath.substr(lastDot).compare(".so") == 0) {
 			//leave only the filename with extension
-			std::string  filenameWithExtension = fullPath.substr(path.find_last_of("/\\") + 1);
+			std::string  filenameWithExtension = fullPath.substr(fullPath.find_last_of("/\\") + 1);
 			//remove the extension
-			std::string  filenameNoExtension = fullPath.substr(0, path.find_last_of("."));
+			std::string  filenameNoExtension = fullPath.substr(0, fullPath.find_last_of("."));
 			names.push_back(filenameNoExtension);
 		}
 	}
@@ -217,10 +219,12 @@ void MatchManager::printError(Errors error, std::string input, std::string valid
 		break;
 	case Errors::algorithm_cannot_be_loaded:
 		std::cout << "Algorithm could not be loaded." << std::endl;
-		std::cout << "provided: " << input;
+		std::cout << "provided: " << input << std::endl;
+		break;
 	case Errors::algorithm_not_registered:
 		std::cout << "Algorithm could not be registered..";
-		std::cout << "provided: " << input;
+		std::cout << "provided: " << input << std::endl;
+		break;
 	default:
 		break;
 	}

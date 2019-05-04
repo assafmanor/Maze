@@ -1,7 +1,7 @@
-COMP = g++-5.3.0
+COMP = g++-8.3.0
 
 SHARED_OBJS = _311246755_a.so  #_311246755_b.so
-OBJS = _311246755_a.o #_311246755_b.o
+OBJS = AbstractAlgorithm.o _311246755_a.o #_311246755_b.o
 CPP_COMP_FLAG = -std=c++17 -Wall -Wextra -Werror -pedantic-errors -DNDEBUG -fPIC
 CPP_LINK_FLAG = -shared
 

@@ -1,8 +1,8 @@
-COMP = g++-5.3.0
+COMP = g++-8.3.0
 
-OBJS = main.o AlgorithmRegistration.o AlgorithmRegistrar.o GameManager.o MatchManager.o AbstractAlgorithm.o
+OBJS = main.o AlgorithmRegistration.o AlgorithmRegistrar.o GameManager.o MatchManager.o
 EXEC = match
-CPP_COMP_FLAG = -std=c++17 -Wall -Wextra -Werror -pedantic-errors -DNDEBUG
+CPP_COMP_FLAG = -std=c++17 -Wall -Wextra -Werror -pedantic-errors -DNDEBUG -lstdc++fs
 CPP_LINK_FLAG = -ldl -export-dynamic#(-rdynamic)
 
 $(EXEC): $(OBJS)
