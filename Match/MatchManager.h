@@ -43,6 +43,7 @@ class MatchManager {
 	void printError(Errors error, std::string input, std::string validFormat);
 	void extractFullMazesName();
 	void extractMazesName();
+	void extractAlgorithmNames(std::vector<std::string>&);
 	void printScoresTable(std::vector<std::vector<int>> scores);
 
 public:

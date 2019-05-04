@@ -43,23 +43,21 @@ int MatchManager::startMatch() {
 		}
 
 	}*/
-	AlgorithmRegistrar& registrar = AlgorithmRegistrar::getInstance();
-	std::string path = "";
-	std::string algorithmSoFileNames[] = { "algorithm1", "algorithm2" };
-	//loading each algorithm "numOfMazes" times
-	for (const auto& algorithmSoFileName : algorithmSoFileNames) {
-		for (int j = 0; j < numOfMazes; ++j) {
-			int result = registrar.loadAlgorithm(path, algorithmSoFileName);
-			if (result == RegistrationStatus::FILE_CANNOT_BE_LOADED) {
-				printError(Errors::algorithm_cannot_be_loaded, algorithmSoFileName, "");
-				return FAILURE;
-			}
-			if (result == RegistrationStatus::NO_ALGORITHM_REGISTERED) {
-				printError(Errors::algorithm_not_registered, algorithmSoFileName, "");
-				return FAILURE;
-			}
-		}
+	std::list<std::string> algorithmNamesList;
+	extractAlgorithmNames(algorithmNamesList);
 
+	AlgorithmRegistrar& registrar = AlgorithmRegistrar::getInstance();
+	//loading each algorithm
+	for (const auto& algorithmSoFileName : algorithmNamesList) {
+		int result = registrar.loadAlgorithm(algorithmsPath + algorithmSoFileName + ".so", algorithmSoFileName);
+		if (result == RegistrationStatus::FILE_CANNOT_BE_LOADED) {
+			printError(Errors::algorithm_cannot_be_loaded, algorithmSoFileName, "");
+			return FAILURE;
+		}
+		if (result == RegistrationStatus::NO_ALGORITHM_REGISTERED) {
+			printError(Errors::algorithm_not_registered, algorithmSoFileName, "");
+			return FAILURE;
+		}
 	}
 	if (registrar.size() == 0) {
 		// TODO: no algorithms loaded - print usage etc.
@@ -67,27 +65,25 @@ int MatchManager::startMatch() {
 		return FAILURE;
 	}
 
-	auto algorithms = registrar.getAlgorithms();
 	auto& algorithmNames = registrar.getAlgorithmNames();
 
 	numOfMazes = mazesFullNames.size();
 	numOfAlgorithms = algorithms.size();
 
-	auto pName = algorithmNames.begin();
-	auto algos = algorithms.begin();
 	std::vector<std::vector<int>> scores(numOfAlgorithms, std::vector<int>(numOfMazes,0));
 	
 	//run all Algorithms on all mazes and store the scores
 	for (int i = 0; i < numOfAlgorithms; ++i) {
+		auto algorithms = registrar.getAlgorithms();
+		auto pName = algorithmNames.begin();
+		auto algos = algorithms.begin();
 		for (int j = 0; j < numOfMazes; ++j) {
 			GameManager game(mazesFullNames.at(j), mazesFullNames.at(j) + *(pName++) + ".output", *(algos++));
 			if ((scores.at(i).at(j) = game.startGame()) == -2) {
 				std::cout << "Failed Processing the maze: " << mazesFullNames.at(j) << std::endl;
 				break;
 			}
-
 		}
-
 	}
 
 	printScoresTable(scores);
@@ -98,6 +94,26 @@ int MatchManager::startMatch() {
 void MatchManager::extractFullMazesName() {
 	for (const auto & entry : std::filesystem::directory_iterator(mazesPath))
 		mazesFullNames.push_back(entry.path().string());
+}
+
+
+void MatchManager::extractAlgorithmNames(std::list<std::string> &names) {
+	std::string fullPath;
+	for (const auto& entry : std::filesystem::directory_iterator(algorithmsPath)) {
+		fullPath = entry.path().string();
+		size_t lastDot = path.find_last_of(".");
+		// add filename to vector if it ends with an ".so" extension
+		if (lastDot > 0 && lastDot != std::string::npos && fullPath.substr(lastDot).compare(".so") == 0) {
+			//leave only the filename with extension
+			std::string  filenameWithExtension = fullPath.substr(path.find_last_of("/\\") + 1);
+			//remove the extension
+			std::string  filenameNoExtension = fullPath.substr(0, path.find_last_of("."));
+			names.push_back(filenameNoExtension);
+		}
+	}
+
+
+
 }
 
 
