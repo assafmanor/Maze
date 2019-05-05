@@ -1,5 +1,6 @@
 #include "MatchManager.h"
 
+
 /*
 MatchManager::~MatchManager() {
 
@@ -13,7 +14,11 @@ MatchManager::MatchManager(const MatchManager&) {
 
 int MatchManager::startMatch() {
 	//parse command line args, in case of error we do not proceed
-	if (processCommandLineInput()) return FAILURE;
+	/*if (processCommandLineInput()) return FAILURE;*/
+	mazesPath = "../mazes";
+	algorithmsPath = "../Algorithm/";
+	outputPath = "../output/output.txt";
+
 	/**
 	//temporary hard coded 2 algo
 	ListOfAlgorithms.push_back(std::make_unique<_311246755_a>());
@@ -48,8 +53,9 @@ int MatchManager::startMatch() {
 
 	AlgorithmRegistrar& registrar = AlgorithmRegistrar::getInstance();
 	//loading each algorithm
+	int i = 0;
 	for (const auto& algorithmSoFileName : algorithmNamesList) {
-		int result = registrar.loadAlgorithm(algorithmsPath + algorithmSoFileName + ".so", algorithmSoFileName);
+		int result = registrar.loadAlgorithm(eachAlgorithmPaths.at(i++), algorithmSoFileName);
 		if (result == RegistrationStatus::FILE_CANNOT_BE_LOADED) {
 			printError(Errors::algorithm_cannot_be_loaded, algorithmSoFileName, "");
 			return FAILURE;
@@ -94,29 +100,28 @@ int MatchManager::startMatch() {
 
 // listing the files in a directory and add them to our vector of names
 void MatchManager::extractFullMazesName() {
-		for (auto& entry : std::experimental::filesystem::directory_iterator(mazesPath)) {
+		for (auto& entry : fs::directory_iterator(mazesPath)) {
 			mazesFullNames.push_back(entry.path().string());
-	}
+		}
+		numOfMazes = mazesFullNames.size();
 }
 
 
 void MatchManager::extractAlgorithmNames(std::list<std::string> &names) {
 	std::string fullPath;
-	for (auto& entry : std::experimental::filesystem::directory_iterator(algorithmsPath)) {
+	for (auto& entry : fs::directory_iterator(algorithmsPath)) {
 		fullPath = entry.path().string();
 		size_t lastDot = fullPath.find_last_of(".");
 		// add filename to vector if it ends with an ".so" extension
 		if (lastDot > 0 && lastDot != std::string::npos && fullPath.substr(lastDot).compare(".so") == 0) {
 			//leave only the filename with extension
-			std::string  filenameWithExtension = fullPath.substr(fullPath.find_last_of("/\\") + 1);
+			std::string  filenameWithExtension = fullPath.substr(fullPath.find_last_of("/") + 1);
 			//remove the extension
-			std::string  filenameNoExtension = fullPath.substr(0, fullPath.find_last_of("."));
+			std::string  filenameNoExtension = filenameWithExtension.substr(0, filenameWithExtension.find_last_of("."));
 			names.push_back(filenameNoExtension);
+			eachAlgorithmPaths.push_back(fullPath);
 		}
 	}
-
-
-
 }
 
 
@@ -223,7 +228,7 @@ void MatchManager::printError(Errors error, std::string input, std::string valid
 		std::cout << "provided: " << input << std::endl;
 		break;
 	case Errors::algorithm_not_registered:
-		std::cout << "Algorithm could not be registered..";
+		std::cout << "Algorithm could not be registered." << std::endl;
 		std::cout << "provided: " << input << std::endl;
 		break;
 	default:

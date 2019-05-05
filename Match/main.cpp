@@ -4,12 +4,12 @@
 
 
 int main(int argc, char **argv) {
-	if (argc > 4) {
+	/*if (argc > 4) {
 		std::cout << "too many arguments in command line" << std::endl;
 		return 0;
-	}
+	}*/
 	//command line: match
-	else if (argc < 2) {
+	/*else */if (argc < 2) {
 		MatchManager match("./");
 	}
 	//command line: match [-maze_path <path>]

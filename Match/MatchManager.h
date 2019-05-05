@@ -1,25 +1,22 @@
 #pragma once
 
 #include <vector>
-#include <map>
 #include <list>
 #include <functional>
 #include <memory>
 #include <iostream>
-#include <experimental/filesystem>
-#include <fstream>
-#include <sstream> 
+#include <filesystem>
 #include <iomanip>
+#include <cassert>
 #include "AbstractAlgorithm.h"
 #include "GameManager.h"
 #include "AlgorithmRegistrar.h"
 
-//namespace fs = std::experimental::filesystem;
-
-
 
 #define SUCCESS 0
 #define FAILURE 1
+
+namespace fs = std::filesystem;
 
 //possible errors
 enum class Errors {
@@ -36,6 +33,7 @@ class MatchManager {
 	//std::map<std::string, std::function<std::unique_ptr<AbstractAlgorithm>()>> Factory;
 	std::vector<std::unique_ptr<AbstractAlgorithm>> ListOfAlgorithms;
 	std::vector<std::string> algorithmsNames;
+	std::vector<std::string> eachAlgorithmPaths;
 	//holds the scores of each algo, scoers[i][j] is the score of algo number i on maze j
 	int numOfMazes, numOfAlgorithms;
 
