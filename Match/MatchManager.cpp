@@ -94,14 +94,15 @@ int MatchManager::startMatch() {
 
 // listing the files in a directory and add them to our vector of names
 void MatchManager::extractFullMazesName() {
-	for (const auto & entry : std::filesystem::directory_iterator(mazesPath))
-		mazesFullNames.push_back(entry.path().string());
+		for (auto& entry : fs::directory_iterator(mazesPath)) {
+			mazesFullNames.push_back(entry.path().string());
+	}
 }
 
 
 void MatchManager::extractAlgorithmNames(std::list<std::string> &names) {
 	std::string fullPath;
-	for (const auto& entry : std::filesystem::directory_iterator(algorithmsPath)) {
+	for (auto& entry : fs::directory_iterator(algorithmsPath)) {
 		fullPath = entry.path().string();
 		size_t lastDot = fullPath.find_last_of(".");
 		// add filename to vector if it ends with an ".so" extension

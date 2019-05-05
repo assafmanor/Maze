@@ -6,7 +6,7 @@
 #include <functional>
 #include <memory>
 #include <iostream>
-#include<filesystem>
+#include <experimental/filesystem>
 #include <fstream>
 #include <sstream> 
 #include <iomanip>
@@ -14,8 +14,9 @@
 #include "GameManager.h"
 #include "AlgorithmRegistrar.h"
 
+namespace fs = std::experimental::filesystem;
 
-//#include "_311246755_a.h" // should be deleted when  dynamic registration implemented
+
 
 #define SUCCESS 0
 #define FAILURE 1
