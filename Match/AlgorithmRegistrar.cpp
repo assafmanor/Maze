@@ -1,6 +1,5 @@
 #include "AlgorithmRegistrar.h"
 
-
 /**
  * Adds a new algorithm factory to the list of algorithm factories.
  */

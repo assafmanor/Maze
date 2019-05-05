@@ -1,5 +1,6 @@
 #include "_311246755_a.h"
 
+REGISTER_ALGORITHM(_311246755_a)
 
 /*******************************/
 /******* CLASS: MazeCell *******/

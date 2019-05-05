@@ -4,9 +4,9 @@
 #include <list>
 #include <functional>
 #include <memory>
-#include "AbstractAlgorithm.h"
 #include <cassert>
 #include <dlfcn.h>
+#include "AbstractAlgorithm.h"
 
 
 enum RegistrationStatus { ALGORITHM_REGISTERED_SUCCESSFULLY = 0, FILE_CANNOT_BE_LOADED = -1, NO_ALGORITHM_REGISTERED = -2 };

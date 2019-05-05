@@ -1,5 +1,5 @@
 #pragma once
-#include "AbstractAlgorithm.h"
+#include "../Match/AlgorithmRegistration.h"
 #include <stdlib.h>	/* srand, rand	*/
 #include <time.h> 	/* time			*/
 #include <iostream> /* std::abs		*/
