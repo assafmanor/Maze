@@ -11,6 +11,42 @@ MatchManager::MatchManager(const MatchManager&) {
 
 }
 */
+int MatchManager::processCommandLineArgs(int numOfArgs, char **argv, std::vector<std::string> &result) {
+	if (numOfArgs != 1 && numOfArgs != 3 && numOfArgs != 5 && numOfArgs != 7) {
+		std::cout << "Wrong number of arguments in command line" << std::endl;
+		std::cout << "each path should be accompanied with a tag as follows:" << std::endl;
+		std::cout << "match -maze_path <path> -algorithm_path <algorithm path> -output <output path>" << std::endl;
+		return FAILURE;
+	}
+	std::vector<std::string> temp;
+	for (int i = 0; i < 3; ++i) {
+		result.push_back("./");
+	}
+	for (int i = 0; i < numOfArgs; ++i) {
+		temp.push_back(std::string(argv[i]));
+	}
+	for (int j = 1; j < numOfArgs; ++j) {
+		if (temp.at(j).compare("-maze_path") == 0) {
+			result.at(0) = temp.at(j + 1);
+			++j;
+		}
+		else if (temp.at(j).compare("-algorithm_path") == 0) {
+			result.at(1) = temp.at(j + 1);
+			++j;
+		}
+		else if (temp.at(j).compare("-output") == 0) {
+			result.at(2) = temp.at(j + 1);
+			++j;
+		}
+		else {
+			std::cout << "missing tag in the command line arguments" << std::endl;
+			return FAILURE;
+		}
+	}
+	return SUCCESS;
+
+
+}
 
 int MatchManager::startMatch() {
 	//parse command line args, in case of error we do not proceed
@@ -76,8 +112,8 @@ int MatchManager::startMatch() {
 	numOfMazes = mazesFullNames.size();
 	numOfAlgorithms = registrar.size();
 
-	std::vector<std::vector<int>> scores(numOfAlgorithms, std::vector<int>(numOfMazes,0));
-	
+	std::vector<std::vector<int>> scores(numOfAlgorithms, std::vector<int>(numOfMazes, 0));
+
 
 	std::cout << "numOfAlgorithms: " << numOfAlgorithms << std::endl;
 	//run all Algorithms on all mazes and store the scores
@@ -102,10 +138,10 @@ int MatchManager::startMatch() {
 
 // listing the files in a directory and add them to our vector of names
 void MatchManager::extractFullMazesName() {
-		for (auto& entry : fs::directory_iterator(mazesPath)) {
-			mazesFullNames.push_back(entry.path().string());
-		}
-		numOfMazes = mazesFullNames.size();
+	for (auto& entry : fs::directory_iterator(mazesPath)) {
+		mazesFullNames.push_back(entry.path().string());
+	}
+	numOfMazes = mazesFullNames.size();
 }
 
 
@@ -157,9 +193,9 @@ void MatchManager::printScoresTable(std::vector<std::vector<int>> scores) {
 	int maxName = maxMaze > maxAlgo ? maxMaze : maxAlgo;
 
 	const std::string sep = "|";
-	const int total_width = (numOfMazes+1) * maxName + numOfMazes +2 + numOfMazes + 1;
-	const std::string line = std::string(total_width+2, '-');
-	const std::string empty = std::string(maxName+1, ' ');
+	const int total_width = (numOfMazes + 1) * maxName + numOfMazes + 2 + numOfMazes + 1;
+	const std::string line = std::string(total_width + 2, '-');
+	const std::string empty = std::string(maxName + 1, ' ');
 	std::cout << line << std::endl;
 	std::cout << sep << std::setw(maxName + 1) << empty << "  ";
 	for (int i = 0; i < numOfMazes; ++i) {
@@ -179,6 +215,7 @@ void MatchManager::printScoresTable(std::vector<std::vector<int>> scores) {
 
 }
 
+/*
 int MatchManager::processCommandLineInput() {
 	if (extractPathFromString(mazesPath, "-maze_path")) {
 		printError(Errors::maze_path, mazesPath, "-maze_path <path>");
@@ -193,8 +230,9 @@ int MatchManager::processCommandLineInput() {
 		return FAILURE;
 	}
 	return SUCCESS;
-}
+}*/
 
+/*
 int MatchManager::extractPathFromString(std::string &str, std::string tag) {
 	if (str.compare("/.") == 0)	return SUCCESS;
 	std::vector<std::string> result;
@@ -205,7 +243,7 @@ int MatchManager::extractPathFromString(std::string &str, std::string tag) {
 	if (result.size() != 2 || result.at(0).compare(tag) != 0) return FAILURE;
 	str = result.at(1);
 	return SUCCESS;
-}
+}*/
 
 void MatchManager::printError(Errors error, std::string input, std::string validFormat) {
 

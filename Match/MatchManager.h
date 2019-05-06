@@ -46,13 +46,14 @@ class MatchManager {
 	void printScoresTable(std::vector<std::vector<int>> scores);
 
 public:
-	MatchManager(const char *_mazesPath = "./", const char *_algorithmsPath = "./", const char *_outputPath = "./") : mazesPath(std::string(_mazesPath)), algorithmsPath(std::string(_algorithmsPath)), outputPath(std::string(_outputPath)) {}; //constructor
+	MatchManager(std::string _mazesPath, std::string _algorithmsPath, std::string _outputPath) : mazesPath(_mazesPath), algorithmsPath(_algorithmsPath), outputPath(_outputPath) {}; //constructor
 	//MatchManager(); //constructor
 
 	//virtual ~MatchManager(); //destructor
 	//MatchManager(const MatchManager&); //copy constructor
 	MatchManager(MatchManager&&) = default; //move constructor
 	int startMatch();
+  static int processCommandLineArgs(int numOfArgs, char **argv, std::vector<std::string> &result);
 
 
 
