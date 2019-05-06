@@ -111,7 +111,9 @@ public:
 	 * first arg is the maze file
 	 * second arg is the output file
 	 */
-	explicit GameManager(const std::string mazeFile, const std::string outputFile, std::unique_ptr<AbstractAlgorithm> &_player) : mazeFileName(mazeFile), outputFileName(outputFile), player(_player), occurredError(false), occurredWrongFormat(false), wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1), currBookmarSerial(0){};
+	explicit GameManager(const std::string mazeFile, const std::string outputFile, std::unique_ptr<AbstractAlgorithm> &_player) 
+		: mazeFileName(mazeFile), outputFileName(outputFile), player(_player), occurredError(false), occurredWrongFormat(false),
+		wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1), currBookmarSerial(0) {};
 
 	/*
 	 *simple destructor

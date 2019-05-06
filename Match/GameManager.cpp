@@ -10,7 +10,6 @@ GameManager::~GameManager() {
 }*/
 
 int GameManager::startGame() {
-
 	if (processFiles(mazeFileName)) {
 		//std::cout << "FAILURE" << std::endl;
 		return -2; // in case of failure no need to run the player
@@ -122,7 +121,6 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 	std::ifstream fin(mazeFilePath);
 
 	if (fin.is_open()) {
-
 		std::getline(fin, line);
 		nameOfMaze = line;
 
@@ -144,12 +142,15 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 		}
 
 		if (!occurredError) {
-
 			//initialize the maze
 			maze.resize(numOfRows);
-			for (int i = 0; i < numOfRows; ++i)
-				for (int j = 0; j < numOfCols; ++j)
+			for (int i = 0; i < numOfRows; ++i) {
+				for (int j = 0; j < numOfCols; ++j) {
 					maze[i].push_back(std::make_unique <Cell>());
+				}
+			}
+			/*TEMP*/std::cout << "maze.size(): " << maze.size() << std::endl;
+			/*TEMP*/std::cout << "maze[0].size(): " << maze[0].size() << std::endl;
 			/*
 			//inititalize the maze
 			maze = new char*[numOfRows];
@@ -160,7 +161,7 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 			for (int i = 0; i < numOfRows; ++i) {
 				int j = 0;
 				if (std::getline(fin, line)) {
-					for (int length = (int)line.length(); j < length; ++j) {
+					for (int length = (int)line.length(); j < length && j < numOfCols; ++j) {
 						if (line[j] == '\r') {
 							(*maze[i][j]).Obstacle = SPACE;
 						}
@@ -179,7 +180,6 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 						if (line[j] == TREASURE) ++numOfTreasuresProvided;
 					}
 				}
-
 				while (j < numOfCols) {
 					(*maze[i][j]).Obstacle = SPACE;
 					++j;
@@ -202,7 +202,6 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 				printError(ErrorStatus::More_Than_One_Treasure);
 				occurredError = true;
 			}
-
 			//characters validation provided in maze
 			for (int i = 0; i < numOfRows; ++i) {
 				for (int j = 0; j < numOfCols; ++j) {
@@ -215,7 +214,6 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 				}
 			}
 		}
-
 		fin.close();
 		//faild open output file
 		if (!occurredError && openOutputFile()) {

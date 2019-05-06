@@ -15,9 +15,9 @@ MatchManager::MatchManager(const MatchManager&) {
 int MatchManager::startMatch() {
 	//parse command line args, in case of error we do not proceed
 	/*if (processCommandLineInput()) return FAILURE;*/
-	mazesPath = "../mazes";
+	mazesPath = "../mazes/in";
 	algorithmsPath = "../Algorithm/";
-	outputPath = "../output/output.txt";
+	outputPath = "../output/";
 
 	/**
 	//temporary hard coded 2 algo
@@ -78,15 +78,17 @@ int MatchManager::startMatch() {
 
 	std::vector<std::vector<int>> scores(numOfAlgorithms, std::vector<int>(numOfMazes,0));
 	
+
+	std::cout << "numOfAlgorithms: " << numOfAlgorithms << std::endl;
 	//run all Algorithms on all mazes and store the scores
-	for (int i = 0; i < numOfAlgorithms; ++i) {
+	for (int i = 0; i < numOfMazes; ++i) {
 		auto algorithms = registrar.getAlgorithms();
 		auto pName = algorithmNames.begin();
 		auto algos = algorithms.begin();
-		for (int j = 0; j < numOfMazes; ++j) {
-			GameManager game(mazesFullNames.at(j), mazesFullNames.at(j) + *(pName++) + ".output", *(algos++));
-			if ((scores.at(i).at(j) = game.startGame()) == -2) {
-				std::cout << "Failed Processing the maze: " << mazesFullNames.at(j) << std::endl;
+		for (int j = 0; j < numOfAlgorithms; ++j, algos++) {
+			GameManager game(mazesFullNames.at(i), mazesFullNames.at(i) + *(pName++) + ".output", *algos);
+			if ((scores[j][i] = game.startGame()) == -2) {
+				std::cout << "Failed Processing the maze: " << mazesFullNames.at(i) << std::endl;
 				break;
 			}
 		}
