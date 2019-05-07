@@ -1,5 +1,3 @@
-// AlgorithmRegistration.h
-
 #pragma once
 
 #include <functional>

@@ -1,5 +1,6 @@
 #include "_311246755_a.h"
 
+
 REGISTER_ALGORITHM(_311246755_a)
 
 /*******************************/
@@ -7,20 +8,20 @@ REGISTER_ALGORITHM(_311246755_a)
 /*******************************/
 
 //Constructor
-MazeCell::MazeCell() : numOfDirsTried(0), obstacle(MazeObstacle::UNKNOWN) {
+_311246755_a::MazeCell::MazeCell() : numOfDirsTried(0), obstacle(MazeObstacle::UNKNOWN) {
 	for (int i = 0; i < 4; i++) {
 		triedDirection[i] = false;
 	}
 
 }
 
-MazeCell::~MazeCell() {}
+_311246755_a::MazeCell::~MazeCell() {}
 
 /**
  * Copy constructor
  * Copies each field by value
  */
-MazeCell::MazeCell(const MazeCell &copied) {
+_311246755_a::MazeCell::MazeCell(const MazeCell &copied) {
 	numOfDirsTried = copied.numOfDirsTried;
 	obstacle = copied.obstacle;
 	for (int i = 0; i < 4; i++) {

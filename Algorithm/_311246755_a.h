@@ -9,18 +9,17 @@
 enum MazeObstacle { UNKNOWN = 0, WALL, SPACE };
 
 
-class MazeCell {
-public:
-	bool triedDirection[4]; //[0]: LEFT, [1]: RIGHT, [2]: UP, [3]: DOWN.
-	int numOfDirsTried;
-	MazeObstacle obstacle;
-	MazeCell();
-	virtual ~MazeCell();
-	MazeCell(const MazeCell&);
-};
-
-
 class _311246755_a : public AbstractAlgorithm {
+
+	class MazeCell {
+	public:
+		bool triedDirection[4]; //[0]: LEFT, [1]: RIGHT, [2]: UP, [3]: DOWN.
+		int numOfDirsTried;
+		MazeObstacle obstacle;
+		MazeCell();
+		virtual ~MazeCell();
+		MazeCell(const MazeCell&);
+	};
 
 	//private fields
 	std::vector<std::vector<MazeCell>> mappedMaze; // the player's recollection of the maze (places he's been at)

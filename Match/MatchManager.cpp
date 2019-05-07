@@ -94,8 +94,9 @@ int MatchManager::startMatch() {
 	std::vector<std::vector<int>> scores(numOfAlgorithms, std::vector<int>(numOfMazes, 0));
 
 
-	std::cout << "numOfAlgorithms: " << numOfAlgorithms << std::endl;
-	std::cout << "numOfMazes: " << numOfMazes << std::endl;
+	/*TODO:temp*/std::cout << "numOfAlgorithms: " << numOfAlgorithms << std::endl;
+	/*TODO:temp*/std::cout << "num of algorithm names" << registrar.getAlgorithmNames().size() << std::endl;
+	/*TODO:temp*/std::cout << "numOfMazes: " << numOfMazes << std::endl;
 
 	//run all Algorithms on all mazes and store the scores
 	for (int i = 0; i < numOfMazes; ++i) {
@@ -105,7 +106,7 @@ int MatchManager::startMatch() {
 		//auto pName = algosmNames.begin();
 		auto pName = algorithmNamesList.begin();
 		auto algos = algorithms.begin();
-		for (int j = 0; j < numOfAlgorithms; ++j, algos++) {
+		for (int j = 0; j < static_cast<int>(numOfAlgorithms); ++j, algos++) {
 			GameManager game(mazesFullNames.at(i), outputPath + mazesNames.at(i) + *(pName++) + ".output", *algos);
 			if ((scores[j][i] = game.startGame()) == -2) {
 				std::cout << "Failed Processing the maze: " << mazesFullNames.at(i) << std::endl;
@@ -190,7 +191,7 @@ void MatchManager::printScoresTable(std::vector<std::vector<int>> scores) {
 	std::cout << line << std::endl;
 	auto pName = algorithmNamesList.begin();
 
-	for (int i = 0; i < numOfAlgorithms; ++i, ++pName) {
+	for (int i = 0; i < static_cast<int>(numOfAlgorithms); ++i, ++pName) {
 		std::cout << sep << std::setw(maxName + 1) << *pName + " ";
 		for (int j = 0; j < numOfMazes; ++j) {
 			std::cout << sep << std::setw(maxName + 1) << scores.at(i).at(j);

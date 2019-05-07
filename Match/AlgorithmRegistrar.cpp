@@ -4,7 +4,9 @@
  * Adds a new algorithm factory to the list of algorithm factories.
  */
 void AlgorithmRegistrar::registerAlgorithm(std::function<std::unique_ptr<AbstractAlgorithm>()> algorithmFactory) {
-	instance.algorithmFactories.push_back(algorithmFactory);
+	if (instance.size() == instance.getAlgorithmNames().size()) {
+		instance.algorithmFactories.push_back(algorithmFactory);
+	}
 }
 
 
@@ -15,8 +17,10 @@ RegistrationStatus AlgorithmRegistrar::loadAlgorithm(const std::string& path, co
 	size_t size = instance.size();
 	void *handle;
 
+
 	//try to load the .so file
-	handle = dlopen(path.c_str(),  RTLD_LAZY);
+	handle = dlopen(path.c_str(), RTLD_LAZY);
+
 	if(!handle) {
 		return FILE_CANNOT_BE_LOADED;
 	}

@@ -37,7 +37,8 @@ class MatchManager {
 	std::list<std::string> algorithmNamesList;
 
 	//holds the scores of each algo, scoers[i][j] is the score of algo number i on maze j
-	int numOfMazes, numOfAlgorithms;
+	int numOfMazes;
+	size_t numOfAlgorithms;
 
 
 	int processCommandLineInput();
