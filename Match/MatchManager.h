@@ -34,8 +34,11 @@ class MatchManager {
 	std::vector<std::unique_ptr<AbstractAlgorithm>> ListOfAlgorithms;
 	std::vector<std::string> algorithmsNames;
 	std::vector<std::string> eachAlgorithmPaths;
+	std::list<std::string> algorithmNamesList;
+
 	//holds the scores of each algo, scoers[i][j] is the score of algo number i on maze j
 	int numOfMazes, numOfAlgorithms;
+
 
 	int processCommandLineInput();
 	int extractPathFromString(std::string &str, std::string tag);

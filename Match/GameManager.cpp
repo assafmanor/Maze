@@ -14,7 +14,6 @@ int GameManager::startGame() {
 		//std::cout << "FAILURE" << std::endl;
 		return -2; // in case of failure no need to run the player
 	}
-
 	//read moves from player for a maximum of $maxSteps steps
 	AbstractAlgorithm::Move curMove;
 	int nextPlayerLoc[2];
@@ -98,7 +97,7 @@ int GameManager::startGame() {
 	//failed to solve maze in $maxSteps steps
 	fout << "X";
 	fout.close();
-	std::cout << "Failed to solve maze in " << maxSteps << " steps";
+	std::cout << "Failed to solve maze in " << maxSteps << " steps" << std::endl;
 	return -1;
 }
 

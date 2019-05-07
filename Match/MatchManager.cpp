@@ -35,7 +35,10 @@ int MatchManager::processCommandLineArgs(int numOfArgs, char **argv, std::vector
 			++j;
 		}
 		else if (temp.at(j).compare("-output") == 0) {
-			result.at(2) = temp.at(j + 1);
+			if( temp.at(j + 1).back() == '/' )
+				result.at(2) = temp.at(j + 1);
+			else
+				result.at(2) = temp.at(j + 1) + "/";
 			++j;
 		}
 		else {
@@ -51,40 +54,16 @@ int MatchManager::processCommandLineArgs(int numOfArgs, char **argv, std::vector
 int MatchManager::startMatch() {
 	//parse command line args, in case of error we do not proceed
 	/*if (processCommandLineInput()) return FAILURE;*/
-	mazesPath = "../mazes/in";
-	algorithmsPath = "../Algorithm/";
-	outputPath = "../output/";
+	//mazesPath = "../mazes/in";
+	//algorithmsPath = "../Algorithm/";
+	//outputPath = "../output/";
 
-	/**
-	//temporary hard coded 2 algo
-	ListOfAlgorithms.push_back(std::make_unique<_311246755_a>());
-	algorithmsNames.push_back("_311246755_A");
-	ListOfAlgorithms.push_back(std::make_unique<_311246755_a>());
-	algorithmsNames.push_back("_311246755_B");
-	*/
 	extractFullMazesName();
 	extractMazesName();
 
 	//sanity check: assert vector lengths are of equal size
 	assert(mazesFullNames.size() == mazesNames.size());
 
-
-	/*
-	numOfMazes = mazesFullNames.size();
-	numOfAlgorithms = ListOfAlgorithms.size();
-	//run all Algorithms on all mazes and store the scores
-	for (int i = 0; i < numOfAlgorithms; ++i) {
-		for (int j = 0; j < numOfMazes; ++j) {
-			GameManager game(mazesFullNames.at(j), mazesFullNames.at(j)+algorithmsNames.at(i)+".output", ListOfAlgorithms.at(i).get());
-			if ((scores.at(i).at(j) = game.startGame()) == -2) {
-				std::cout << "Failed Processing the maze: " << mazesFullNames.at(j)<< std::endl;
-				break;
-			}
-
-		}
-
-	}*/
-	std::list<std::string> algorithmNamesList;
 	extractAlgorithmNames(algorithmNamesList);
 
 	AlgorithmRegistrar& registrar = AlgorithmRegistrar::getInstance();
@@ -107,7 +86,7 @@ int MatchManager::startMatch() {
 		return FAILURE;
 	}
 
-	auto& algorithmNames = registrar.getAlgorithmNames();
+	//auto& algorithmNames = registrar.getAlgorithmNames();
 
 	numOfMazes = mazesFullNames.size();
 	numOfAlgorithms = registrar.size();
@@ -116,13 +95,18 @@ int MatchManager::startMatch() {
 
 
 	std::cout << "numOfAlgorithms: " << numOfAlgorithms << std::endl;
+	std::cout << "numOfMazes: " << numOfMazes << std::endl;
+
 	//run all Algorithms on all mazes and store the scores
 	for (int i = 0; i < numOfMazes; ++i) {
 		auto algorithms = registrar.getAlgorithms();
-		auto pName = algorithmNames.begin();
+		//auto pName = algorithmNames.begin();
+		//auto& algosmNames = registrar.getAlgorithmNames();
+		//auto pName = algosmNames.begin();
+		auto pName = algorithmNamesList.begin();
 		auto algos = algorithms.begin();
 		for (int j = 0; j < numOfAlgorithms; ++j, algos++) {
-			GameManager game(mazesFullNames.at(i), mazesFullNames.at(i) + *(pName++) + ".output", *algos);
+			GameManager game(mazesFullNames.at(i), outputPath + mazesNames.at(i) + *(pName++) + ".output", *algos);
 			if ((scores[j][i] = game.startGame()) == -2) {
 				std::cout << "Failed Processing the maze: " << mazesFullNames.at(i) << std::endl;
 				break;
@@ -171,6 +155,7 @@ void MatchManager::extractMazesName() {
 		while ((pos = s.find(delimiter)) != std::string::npos) {
 			s.erase(0, pos + delimiter.length());
 		}
+		s.erase(s.find(".maze"));
 		mazesNames.push_back(s);
 	}
 }
@@ -184,34 +169,35 @@ void MatchManager::printScoresTable(std::vector<std::vector<int>> scores) {
 		if (currSize > maxMaze)	maxMaze = currSize;
 	}
 
-	//calculate the max name size from the algorithms  
+	//calculate the max name size from the algorithms 
 	int maxAlgo = 0;
-	for (int i = 0; i < numOfAlgorithms; ++i) {
-		currSize = algorithmsNames.at(i).size();
+	for (std::string name : algorithmNamesList) {
+		currSize = name.size();
 		if (currSize > maxAlgo)	maxAlgo = currSize;
 	}
 	int maxName = maxMaze > maxAlgo ? maxMaze : maxAlgo;
-
+    
 	const std::string sep = "|";
 	const int total_width = (numOfMazes + 1) * maxName + numOfMazes + 2 + numOfMazes + 1;
-	const std::string line = std::string(total_width + 2, '-');
-	const std::string empty = std::string(maxName + 1, ' ');
+	const std::string line = std::string(total_width, '-');
+	const std::string empty = std::string(maxName-1 , ' ');
 	std::cout << line << std::endl;
-	std::cout << sep << std::setw(maxName + 1) << empty << "  ";
+	std::cout << sep << std::setw(maxName-1) << empty << "  ";
 	for (int i = 0; i < numOfMazes; ++i) {
-		std::cout << sep << std::setw(maxName) << mazesNames.at(i) + " ";
+		std::cout << sep << std::setw(maxName+1) << mazesNames.at(i) + " ";
 	}
 	std::cout << sep << std::endl;
 	std::cout << line << std::endl;
-	for (int i = 0; i < numOfAlgorithms; ++i) {
-		std::cout << sep << std::setw(maxName + 1) << algorithmsNames.at(i) + " ";
+	auto pName = algorithmNamesList.begin();
+
+	for (int i = 0; i < numOfAlgorithms; ++i, ++pName) {
+		std::cout << sep << std::setw(maxName + 1) << *pName + " ";
 		for (int j = 0; j < numOfMazes; ++j) {
 			std::cout << sep << std::setw(maxName + 1) << scores.at(i).at(j);
 		}
 		std::cout << sep << std::endl;
 		std::cout << line << std::endl;
 	}
-
 
 }
 
