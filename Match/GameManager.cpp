@@ -76,7 +76,7 @@ int GameManager::startGame() {
 		case TREASURE:
 			fout << "!";
 			std::cout << "Succeeded in " << i + 1 << " steps";
-			fout.close();
+			if (providedOutputArg) fout.close();
 			return  i + 1;
 		case PLAYER: //if the player has landed on the starting cell -- treat it as a space
 		case SPACE:
@@ -96,7 +96,8 @@ int GameManager::startGame() {
 	}
 	//failed to solve maze in $maxSteps steps
 	fout << "X";
-	fout.close();
+	if(providedOutputArg)
+		fout.close();
 	std::cout << "Failed to solve maze in " << maxSteps << " steps" << std::endl;
 	return -1;
 }
@@ -109,9 +110,11 @@ int GameManager::openOutputFile() {
 		return FAILURE;
 	}
 	infile.close();
-	fout.open(outputFileName);
-	if (!fout.is_open())
-		return FAILURE;
+	if (providedOutputArg) {
+		fout.open(outputFileName);
+		if (!fout.is_open())
+			return FAILURE;
+	}
 	return SUCCESS;
 }
 int GameManager::processFiles(const std::string mazeFilePath) {

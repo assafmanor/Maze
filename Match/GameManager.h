@@ -58,7 +58,7 @@ class GameManager {
 	int bookmarkCol; //the col of the placed bookmark
 	int currBookmarSerial;
 	std::ofstream fout;
-
+	bool providedOutputArg;
 	/*
 	 * process the input files
 	 * maze file format:
@@ -111,9 +111,9 @@ public:
 	 * first arg is the maze file
 	 * second arg is the output file
 	 */
-	explicit GameManager(const std::string mazeFile, const std::string outputFile, std::unique_ptr<AbstractAlgorithm> &_player) 
+	explicit GameManager(const std::string mazeFile, const std::string outputFile, std::unique_ptr<AbstractAlgorithm> &_player, bool _providedOutputArg)
 		: mazeFileName(mazeFile), outputFileName(outputFile), player(_player), occurredError(false), occurredWrongFormat(false),
-		wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1), currBookmarSerial(0) {};
+		wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1), currBookmarSerial(0), providedOutputArg(_providedOutputArg){};
 
 	/*
 	 *simple destructor
