@@ -30,6 +30,7 @@ class _311246755_b : public AbstractAlgorithm {
 	bool isWidthKnown, isHeightKnown;
 	bool placedBookmark;
 	bool directionChosen;
+	int lastSeq = 0; //the sequence number of the last bookmark placed
 
 	//private methods
 	void updateTriedFromOrigin(MazeCell&);

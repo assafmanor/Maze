@@ -3,17 +3,28 @@
 
 REGISTER_ALGORITHM(_311246755_a)
 
+
 /*******************************/
 /******* CLASS: MazeCell *******/
 /*******************************/
 
-//Constructor
-_311246755_a::MazeCell::MazeCell() : numOfDirsTried(0), obstacle(MazeObstacle::UNKNOWN) {
-	for (int i = 0; i < 4; i++) {
-		triedDirection[i] = false;
-	}
-
+//Constructors
+_311246755_a::MazeCell::MazeCell(MazeObstacle _obstacle) : hasBookmark(false), numOfDirsTried(0), obstacle(_obstacle) {
+		triedDirection[Move::UP] = false;
+		triedDirection[Move::DOWN] = false;
+		triedDirection[Move::LEFT] = false;
+		triedDirection[Move::RIGHT] = false;
 }
+
+_311246755_a::MazeCell::MazeCell() : hasBookmark(false), numOfDirsTried(0), obstacle(MazeObstacle::UNKNOWN) {
+	for (int i = 0; i < 4; i++) {
+		triedDirection[Move::UP] = false;
+		triedDirection[Move::DOWN] = false;
+		triedDirection[Move::LEFT] = false;
+		triedDirection[Move::RIGHT] = false;
+	}
+}
+
 
 _311246755_a::MazeCell::~MazeCell() {}
 
@@ -21,14 +32,15 @@ _311246755_a::MazeCell::~MazeCell() {}
  * Copy constructor
  * Copies each field by value
  */
-_311246755_a::MazeCell::MazeCell(const MazeCell &copied) {
+_311246755_a::MazeCell::MazeCell(const MazeCell& copied) {
 	numOfDirsTried = copied.numOfDirsTried;
 	obstacle = copied.obstacle;
-	for (int i = 0; i < 4; i++) {
-		triedDirection[i] = copied.triedDirection[i];
-	}
+	auto copiedTriedDirections = copied.triedDirection;
+	triedDirection[Move::UP] = copiedTriedDirections[Move::UP];
+	triedDirection[Move::DOWN] = copiedTriedDirections[Move::DOWN];
+	triedDirection[Move::LEFT] = copiedTriedDirections[Move::LEFT];
+	triedDirection[Move::RIGHT] = copiedTriedDirections[Move::RIGHT];
 }
-
 
 
 /*******************************/
@@ -36,17 +48,14 @@ _311246755_a::MazeCell::MazeCell(const MazeCell &copied) {
 /*******************************/
 
 //Constructor
-_311246755_a::_311246755_a() : mappedMaze(), isWidthKnown(false), isHeightKnown(false), placedBookmark(false), directionChosen(false) {
+_311246755_a::_311246755_a() :
+	isWidthKnown(false), isHeightKnown(false), placedBookmark(false), directionChosen(false),
+	leftmostKnownCol(0), rightmostKnownCol(0), lowestKnownRow(0), highestKnownRow(0) {
 	//set seed for random
 	srand((int)time(NULL));
 	//add the starting cell to the memorized map
-	std::vector<MazeCell> firstRow;
-	MazeCell firstCell;
-	firstCell.obstacle = MazeObstacle::SPACE;
-	firstRow.push_back(firstCell);
-	mappedMaze.push_back(firstRow);
+	addNewCell(0, 0, MazeObstacle::SPACE);
 }
-
 //No memory is needed to be freed
 _311246755_a::~_311246755_a() {}
 
@@ -79,42 +88,22 @@ void _311246755_a::undoMove(const Move dir) {
  * Takes into consideration if the width/height are known and updates the location accordingly.
  */
 void _311246755_a::updateLocation(const Move dir) {
-	const int &rows = knownDimensions[0];
-	const int &cols = knownDimensions[1];
-	int &curRow = curLocation[0];
-	int &curCol = curLocation[1];
 	switch (dir) {
 	case Move::UP:
-		if (isHeightKnown && curRow == 0) {
-			curRow = rows;
-		}
-		else {
-			curRow--;
-		}
+		if (isHeightKnown && curRow == highestKnownRow) curRow = lowestKnownRow;
+		else curRow--;
 		break;
 	case Move::DOWN:
-		if (isHeightKnown && curRow == rows) {
-			curRow = 0;
-		}
-		else {
-			curRow++;
-		}
+		if (isHeightKnown && curRow == lowestKnownRow) curRow = highestKnownRow;
+		else curRow++;
 		break;
 	case Move::LEFT:
-		if (isWidthKnown && curCol == 0) {
-			curCol = cols;
-		}
-		else {
-			curCol--;
-		}
+		if (isWidthKnown && curCol == leftmostKnownCol) curCol = rightmostKnownCol;
+		else curCol--;
 		break;
 	case Move::RIGHT:
-		if (isWidthKnown && curCol == cols) {
-			curCol = 0;
-		}
-		else {
-			curCol++;
-		}
+		if (isWidthKnown && curCol == rightmostKnownCol) curCol = leftmostKnownCol;
+		else curCol++;
 		break;
 	default: //BOOKMARK. do nothing as it cannot get there.
 		break;
@@ -122,89 +111,50 @@ void _311246755_a::updateLocation(const Move dir) {
 }
 
 
-/**
- * Updates mappedMaze according to the player's updated location.
- * Also updates the known dimensions, and the player's and bookmark's coordinates according to the updated map.
- * NOTE: this method should ALWAYS be used after a updateLocation() has been invoked.
+/*
+ * Adds a new cell at location to the mapped maze, given only an obstacle.
  */
-void _311246755_a::updateMap() {
-	int &rows = knownDimensions[0];
-	int &cols = knownDimensions[1];
-	int &curRow = curLocation[0];
-	int &curCol = curLocation[1];
-	std::vector<MazeCell> newRow;
-	// the player went lower than previously known
-	if (curRow > rows) {
-		rows++;
-		// add the number of known columns to the row.
-		for (int i = 0; i <= cols; i++) {
-			newRow.push_back(MazeCell());
-		}
-		//insert row at the end (the lowest row)
-		mappedMaze.push_back(newRow);
-	}
-
-	// the player went higher than previously known
-	else if (curRow < 0) {
-		rows++;
-		//adjust location so there won't be any negative coordinations
-		curRow++;
-		bookmarkLoc[0]++;
-		// add the number of known columns to the row
-		for (int i = 0; i <= cols; i++) {
-			newRow.push_back(MazeCell());
-		}
-		//insert row at the beginning (the highest row)
-		mappedMaze.insert(mappedMaze.begin(), newRow);
-	}
-
-	// the player went more right than previously known
-	else if (curCol > cols) { // column needs to be added
-		cols++;
-		// add a cell at the end of each row
-		for (int i = 0; i <= rows; i++) {
-			//insert cell at the end of the row (the rightmost cell)
-			mappedMaze[i].push_back(MazeCell());
-		}
-	}
-
-	// the player went more left than previously known
-	else if (curCol < 0) {
-		cols++;
-		//adjust location so there won't be any negative coordinations
-		curCol++;
-		bookmarkLoc[1]++;
-		for (int i = 0; i <= rows; i++) {
-
-			std::vector<MazeCell> &iRow = mappedMaze.at(i);
-			//insert cell at the beginning of the row (the leftmost cell)
-			iRow.insert(iRow.begin(), MazeCell());
-		}
-	}
+void _311246755_a::addNewCell(const int row, const int col, const MazeObstacle obstacle) {
+	MazeCell cell = MazeCell(obstacle);
+	addNewCell(row, col, cell);
+	////mappedMaze[row][col] = cell;
 }
 
+/*
+ * Adds a new cell at location to the mapped maze, given an existing cell.
+ */
+void _311246755_a::addNewCell(const int row, const int col, MazeCell &cell) {
+	mappedMaze[row].insert(std::make_pair(col, cell));
+	////mappedMaze[row][col] = cell;
+}
+
+
+void _311246755_a::updateCellObstacle(const int row, const int col, MazeObstacle newObstacle) {
+	MazeCell& cell = mappedMaze[row][col];
+	cell.obstacle = newObstacle;
+}
 
 /*
  * Updates the current cell's triedDirection and numOfTriedDirs according to the direction the player came from
  */
-void _311246755_a::updateTriedFromOrigin(MazeCell &cell) {
-	if (!path.empty() && path.top() != Move::BOOKMARK) {
+void _311246755_a::updateTriedFromOrigin(_311246755_a::MazeCell& cell) {
+	if (!path.empty()) {
 		switch (path.top()) {
 		case Move::LEFT:
-			if (!cell.triedDirection[1]) cell.numOfDirsTried++;
-			cell.triedDirection[1] = true; //Direction::RIGHT
+			if (!cell.triedDirection[Move::RIGHT]) cell.numOfDirsTried++;
+			cell.triedDirection[Move::RIGHT] = true;
 			break;
 		case Move::RIGHT:
-			if (!cell.triedDirection[0]) cell.numOfDirsTried++;
-			cell.triedDirection[0] = true; //Direction::LEFT
+			if (!cell.triedDirection[Move::LEFT]) cell.numOfDirsTried++;
+			cell.triedDirection[Move::LEFT] = true;
 			break;
 		case Move::UP:
-			if (!cell.triedDirection[3]) cell.numOfDirsTried++;
-			cell.triedDirection[3] = true; //Direction::DOWN
+			if (!cell.triedDirection[Move::DOWN]) cell.numOfDirsTried++;
+			cell.triedDirection[Move::DOWN] = true;
 			break;
 		case Move::DOWN:
-			if (!cell.triedDirection[2]) cell.numOfDirsTried++;
-			cell.triedDirection[2] = true; //Direction::UP
+			if (!cell.triedDirection[Move::UP]) cell.numOfDirsTried++;
+			cell.triedDirection[Move::UP] = true;
 			break;
 		default:
 			break;
@@ -213,140 +163,200 @@ void _311246755_a::updateTriedFromOrigin(MazeCell &cell) {
 }
 
 
+AbstractAlgorithm::Move _311246755_a::chooseRandomDirection(MazeCell &cell) {
+	int chosenMoveNum = 0;
+	int numAvailable = 4 - cell.numOfDirsTried;
+	int randNum = rand() % numAvailable;
+	auto it = cell.triedDirection.begin();
+	for (; randNum >= 0; chosenMoveNum++, ++it) {
+		bool triedMov = it->second;
+		if (!triedMov) randNum--;
+	}
+	--it;
 
-// PUBLIC METHODS
+	Move nextMove = it->first;
+	//update the cell's fields
+	cell.numOfDirsTried++;
+	cell.triedDirection[nextMove] = true;
+	return nextMove;
+}
+
+
+AbstractAlgorithm::Move _311246755_a::backtrackMove() {
+	Move lastMove = path.top();
+	path.pop(); //remove the last move from path
+	switch (lastMove) {
+	case Move::LEFT:
+		return Move::RIGHT;
+	case Move::RIGHT:
+		return Move::LEFT;
+	case Move::UP:
+		return Move::DOWN;
+	case Move::DOWN:
+		return Move::UP;
+	default: //shouldn't get here
+		return lastMove;
+	}
+}
+
+/*
+ * Chooses the next move direction
+ */
+AbstractAlgorithm::Move _311246755_a::chooseMove() {
+	/*TODO:temp*/std::cout << "chooseMove()" << std::endl;
+	MazeCell &cell = mappedMaze[curRow][curCol];
+	Move nextMove;
+	//place a bookmark if the player is not at a bookmark, he hasn't placed one 
+	if (!directionChosen && !cell.hasBookmark && !placedBookmark) {
+		cell.hasBookmark = true;
+		placedBookmark = true;
+		return Move::BOOKMARK;
+	}
+
+	if (directionChosen) { //continue along the same direction
+		nextMove = path.top();
+		cell.triedDirection[nextMove] = true;
+		isBacktracking = false;
+		if (!cell.triedDirection[nextMove]) {
+			cell.numOfDirsTried++;
+		}
+	}
+	else if (cell.numOfDirsTried < 4) { //choose a random direction that wasn't tried yet
+		isBacktracking = false;
+		directionChosen = true;
+		nextMove = chooseRandomDirection(cell);
+	}
+	else { //backtrack along the walked path
+		isBacktracking = true;
+		placedBookmark = false;
+		nextMove = backtrackMove();
+	}
+
+	/*TODO:temp*/std::cout << "chooseMove() end" << std::endl;
+	return nextMove;
+}
+
 
 /**
- * If this method is called, that means the player has walked a direction, came back from the opposite side
- * and then came back to the same spot, or he is backtracking (in this case -- do nothing)
- * That means that the player now knows the width or height of the maze.
- * This method identifies the width/height and updates it.
+ *
  */
-void _311246755_a::hitBookmark(int seq) {
-
-	if (seq > 100000000) {
-		std::cout << "just for debugging" << std::endl;
+void _311246755_a::updateKnownDimentions(Move move) {
+	switch (move) {
+	case Move::UP:
+		if (!isHeightKnown && curRow < highestKnownRow) highestKnownRow = curRow;
+		return;
+	case Move::DOWN:
+		if (!isHeightKnown && curRow > lowestKnownRow) lowestKnownRow = curRow;
+		return;
+	case Move::LEFT:
+		if (!isWidthKnown && curCol < leftmostKnownCol) leftmostKnownCol = curCol;
+		return;
+	case Move::RIGHT:
+		if (!isWidthKnown && curCol > rightmostKnownCol) rightmostKnownCol = curCol;
+		return;
+	default: //shouldn't get here
+		return;
 	}
-
-	/*TODO: use seq*/
-
-
-	const Move lastDirection = path.top();
-	int &rows = knownDimensions[0];
-	int &cols = knownDimensions[1];
-	int &bookmarkRow = bookmarkLoc[0];
-	int &bookmarkCol = bookmarkLoc[1];
-	int &curRow = curLocation[0];
-	int &curCol = curLocation[1];
-
-	if (!directionChosen) return; //there's no need to do anything, as the player is only backtracking along the walked path
-
-	//choose another direction
-	directionChosen = false;
+}
 
 
-	//Fix the dimensions of the map, erase the needed rows or columns, update the player's and bookmark's location
+/**
+ * Ascertains the true height of the maze, and fixes the value of the highest known rows of the maze.
+ * Returns the true height of the maze
+ */
+int _311246755_a::setHeightBounds(int seq) {
+	const int firstRowVal = bookmarks.at(seq - 1).first; //the row of the bookmark
+	const int secondRowVal = curRow; //the row of the current location
+	//both coordinates are actually the same, and so they need to be fixed
 
-	if (lastDirection == Move::UP || lastDirection == Move::DOWN) {
-		if (isHeightKnown) return;
-		isHeightKnown = true;
-		int tempRows = rows;
-		//update the number of rows the maze has
-		rows = std::abs(curRow - bookmarkRow) - 1;
-		int rowsToErase = tempRows - rows;
-		if (rowsToErase == 0) rowsToErase++;
-		if (lastDirection == Move::UP) {
-			bookmarkRow = bookmarkRow - rowsToErase;
-			//move player to the updated bookmark's location
-			curRow = bookmarkRow;
-			//copy and remove the $rowsToErase highest rows
-			for (int i = rowsToErase; i > 0; i--) {
-				//copy the highest rows to the lowest rows, in order
-				for (int j = 0; j <= cols; j++) {
-					//do not copy the first row (it is the same as the bookmark's row), and copy only cells which are not unknown
-					if (i < rowsToErase && mappedMaze.at(0).at(j).obstacle != MazeObstacle::UNKNOWN) {
-						mappedMaze.at(mappedMaze.size() - i).at(j) = mappedMaze.at(0).at(j);
-					}
-				}
-				mappedMaze.erase(mappedMaze.begin());
-			}
-		}
-		else { //Direction::DOWN
-			if (bookmarkRow > rows) bookmarkRow -= rowsToErase;
-			//move player to the updated bookmark's location
-			curRow = bookmarkRow;
-			//copy remove the $rowsToErase lowest rows
-			for (int i = rowsToErase; i > 0; i--) {
-				//copy the lowest rows to the highest rows, in order
-				for (int j = 0; j <= cols; j++) {
-					//do not copy the last row (it is the same as the bookmark's row), and copy only cells which are not unknown
-					if (i < rowsToErase && mappedMaze.at(mappedMaze.size() - 1).at(j).obstacle != MazeObstacle::UNKNOWN) {
-						mappedMaze.at(i - 1).at(j) = mappedMaze.at(mappedMaze.size() - 1).at(j);
-					}
-				}
-				mappedMaze.erase(mappedMaze.end() - 1);
-			}
-		}
+	assert (firstRowVal != secondRowVal); //shouldn't get here if that's the situation
+	isHeightKnown = true;
+
+	const int mazeHeight = std::abs(firstRowVal - secondRowVal);
+	
+	//fix the lowest known rows according to the newly discovered real height of the maze
+	highestKnownRow = lowestKnownRow - mazeHeight + 1;
+
+	return mazeHeight;
+}
+
+
+/**
+ * Ascertains the true width of the maze, and fixes the value of the rightmost known colums of the maze.
+ * Returns the true width of the maze
+ */
+int _311246755_a::setWidthBounds(int seq) {
+	const int &firstColVal = bookmarks.at(seq - 1).second; //the column of the bookmark
+	const int &secondColVal = curCol; //the column of the current location
+	//both coordinates are actually the same, and so they need to be fixed
+
+	assert (firstColVal == secondColVal); //shouldn't get here if that's the situation
+	isWidthKnown = true;
+
+	const int mazeWidth = std::abs(firstColVal - secondColVal);
+
+	//fix the leftmost known columns according to the newly discovered real width of the maze
+	leftmostKnownCol = rightmostKnownCol - mazeWidth + 1;
+
+	return mazeWidth;
+}
+
+
+/**
+ * Unifies the information gathered from both cells to the receiver cell.
+ */
+void _311246755_a::unifyCells(MazeCell &receiver, MazeCell &giver) {
+	if (giver.hasBookmark) {
+		receiver.hasBookmark = true;
 	}
-	else {
-		if (isWidthKnown) return;
-		isWidthKnown = true;
-		const int tempCols = cols;
-		//update the number of cols the maze has
-		cols = std::abs(curCol - bookmarkCol) - 1;
-		int colsToErase = tempCols - cols;
-		if (colsToErase == 0) colsToErase++;
-		if (lastDirection == Move::LEFT) {
-			bookmarkCol = bookmarkCol - colsToErase;
-			//move player to the updated bookmark's location
-			curCol = bookmarkCol;
-			//copy and remove the $colsToErase leftmost columns
-			for (int j = 0; j <= rows; j++) {
-				std::vector<MazeCell> &iRow = mappedMaze.at(j);
-				//copy the leftmost columns to the rightmost columns, in order
-				for (int i = colsToErase; i > 0; i--) {
-					//do not copy the first column (it is the same as the bookmark's column), and copy only cells which are not unknown
-					if (i < colsToErase && iRow.at(0).obstacle != MazeObstacle::UNKNOWN) {
-						iRow.at(iRow.size() - i) = iRow.at(0);
-					}
-					iRow.erase(iRow.begin());
-				}
-			}
-		}
-		else { //Direction::RIGHT
-			if (bookmarkCol > cols) bookmarkCol -= colsToErase;
-			//move player to the updated bookmark's location
-			curCol = bookmarkCol;
-			//copy and remove the $colsToErase rightmost columns
-			for (int j = 0; j <= rows; j++) {
-				std::vector<MazeCell> &iRow = mappedMaze.at(j);
-				//copy the rightmost columns to the leftmost columns, in order
-				for (int i = colsToErase; i > 0; i--) {
-					//do not copy the last column (it is the same as the bookmark's column), and copy only cells which are not unknown
-					if (i < colsToErase && iRow.at(iRow.size() - 1).obstacle != MazeObstacle::UNKNOWN) {
-						iRow.at(i - 1) = iRow.at(iRow.size() - 1);
-					}
-					iRow.erase(iRow.end() - 1);
-				}
-			}
+	if (receiver.obstacle == MazeObstacle::UNKNOWN) {
+		receiver.obstacle = giver.obstacle;
+	}
+	for (int i = Move::UP; i < Move::LEFT; i++) {
+		Move mov = static_cast<Move>(i);
+		if (!receiver.triedDirection[mov] && giver.triedDirection[mov]) {
+			receiver.triedDirection[mov] = true;
+			receiver.numOfDirsTried++;
 		}
 	}
 }
 
 
 /**
- * Cancels the last direction change.
- * Updates the cell's obstacle to MazeObstacle::WALL, removes the last direction change from path, and fixes the player's location.
+ * Unifies all the information found in all the cells present in both rows, and stores the unified information inside the receiver row.
  */
-void _311246755_a::hitWall() {
-	MazeCell &cell = mappedMaze[curLocation[0]][curLocation[1]];
-	cell.obstacle = MazeObstacle::WALL;
-	directionChosen = false;
-	Move lastDir = path.top();
-	undoMove(lastDir);
-	path.pop();
-	if (curLocation[0] != bookmarkLoc[0] || curLocation[1] != bookmarkLoc[1]) { //check if the bookmark is at the same location as the player, and place it if it isn't
-		placedBookmark = false;
+void _311246755_a::unifyRows(std::map <int, MazeCell> receiver, std::map <int, MazeCell> giver, const int rowNumOfReceiver) {
+	for (auto cellIt : giver) {
+		const int curColNum = cellIt.first;
+		MazeCell &giverCell = cellIt.second;
+		auto receiverCellIt = receiver.find(curColNum);
+		if (receiverCellIt == receiver.end()) { //cell not found
+			addNewCell(rowNumOfReceiver, curColNum, giverCell);
+		}
+		else { //duplicate cell found
+			unifyCells(receiverCellIt->second, giverCell);
+		}
+	}
+}
+
+
+/**
+ * 
+ */
+void _311246755_a::fixRows(const int mazeHeight) {
+	int curRowNum;
+	for (auto tooHighRowIt : mappedMaze) {
+		curRowNum = tooHighRowIt.first;
+		int correctRowNum = findCorrectCoord(curRowNum, highestKnownRow,  mazeHeight);
+		if (curRowNum >= highestKnownRow) break;
+		//check if there already exists a row with the correct row number
+		auto receiverRowIt = mappedMaze.find(correctRowNum);
+		if (receiverRowIt != mappedMaze.end()) { //found duplicate row
+			unifyRows(receiverRowIt->second, tooHighRowIt.second, curRowNum + mazeHeight);
+		}
+		else { //found a row that needs to get copied to the correct row
+			mappedMaze[correctRowNum] = tooHighRowIt.second;
+		}
 	}
 }
 
@@ -355,85 +365,152 @@ void _311246755_a::hitWall() {
 /**
  *
  */
+void _311246755_a::fixCols(const int mazeWidth) {
+	int tooLeftColNum;
+	int correctColNum;
+
+	//do for all rows
+	for (auto curRowIt : mappedMaze) {
+		const int curRowNum = curRowIt.first;
+		std::map <int, MazeCell> &curRow = curRowIt.second;
+		for (auto tooLeftCellIt : curRow) {
+			tooLeftColNum = tooLeftCellIt.first;
+			correctColNum = findCorrectCoord(tooLeftColNum, leftmostKnownCol, mazeWidth);
+			MazeCell& giverCell = tooLeftCellIt.second;
+			if (tooLeftColNum >= leftmostKnownCol) break;
+			//check if there already exists a cell in this row with the correct column number
+			auto receiverCellIt = curRow.find(correctColNum);
+			if (receiverCellIt != curRow.end()) { //found duplicate cell
+				unifyCells(receiverCellIt->second, giverCell);
+			}
+			else { //found a cell that needs to get copied to the correct column
+				addNewCell(curRowNum, correctColNum, giverCell);
+			}
+		}
+	}
+}
+
+
+void _311246755_a::fixBookmarks(const int mazeWidth, const int mazeHeight) {
+	int bRow, bCol;
+	for (long unsigned int i = 0; i < bookmarks.size(); i++) {
+		auto coords = bookmarks.at(i);
+		bRow = coords.first;
+		bCol = coords.second;
+		if (mazeHeight != -1 && bRow < highestKnownRow) {
+			int correctRow = findCorrectCoord(bRow, highestKnownRow, mazeHeight);
+			bookmarks.at(i) = { correctRow, bCol };
+		}
+		else if (mazeWidth != -1 && bCol < leftmostKnownCol) {
+			int correctCol = findCorrectCoord(bCol, leftmostKnownCol, mazeWidth);
+			bookmarks.at(i) = { bRow, correctCol };
+		}
+	}
+}
+
+
+/**
+ * Calculates the correct value for the given coordinate, according to the threshold and mazeDim.
+ */
+int _311246755_a::findCorrectCoord(const int oldCoord, const int thresh, const int mazeDim) {
+	int res = oldCoord;
+	while (res < thresh) {
+		res += mazeDim;
+	}
+	return res;
+}
+
+
+
+// PUBLIC METHODS
+
+/**
+ *
+ */
+void _311246755_a::hitBookmark(int seq) {
+	std::cout << "hit bookmark" << std::endl;
+	if (!directionChosen) return; //the player hit the bookmark because he was backtracking, so there's nothing to deduce
+	directionChosen = false;
+	auto b = bookmarks.at(seq - 1);
+	int bRow = b.first, bCol = b.second;
+	std::cout << "cur: (" << curRow << "," << curCol << "), bookmark: (" << bRow << "," << bCol << ")." << std::endl;
+	if (curRow == bRow && curCol == bCol) return;
+	if (curRow != bRow) {
+		if (isHeightKnown) return; //there's nothing to deduce from this bookmark hit.
+		else {
+			const int mazeHeight = setHeightBounds(seq);
+			if (curRow < highestKnownRow) {
+				std::cout << "mazeHeight: " << mazeHeight << std::endl;
+				fixRows(mazeHeight);
+				fixBookmarks(-1, mazeHeight);
+			}
+		}
+	}
+	if(curCol != bCol){
+		if (isWidthKnown) return; //there's nothing to deduce from this bookmark hit.
+		else {
+			const int mazeWidth = setWidthBounds(seq);
+			if (curCol < leftmostKnownCol) {
+				fixCols(mazeWidth);
+				fixBookmarks(mazeWidth, -1);
+			}
+		}
+	}
+}
+
+
+/**
+ * Cancels the last direction change.
+ * Updates the cell's obstacle to MazeObstacle::WALL and removes the last direction change from path.
+ */
+void _311246755_a::hitWall() {
+	movedLastTurn = false;
+	std::cout << "HIT WALL" << std::endl;
+	updateCellObstacle(curRow, curCol, MazeObstacle::WALL);
+	directionChosen = false;
+	Move lastDir = path.top();
+	undoMove(lastDir);
+	path.pop();
+	if (!mappedMaze[curRow][curCol].hasBookmark) { //check if there is a bookmark at the same location as the player, and place one if there isn't
+		placedBookmark = false;
+	}
+}
+
+
+
+/**
+ * 
+ */
 AbstractAlgorithm::Move _311246755_a::move() {
-
-	/*TODO: use bookmarks more often*/
-	
-
-
-	MazeCell &cell = mappedMaze[curLocation[0]][curLocation[1]];
-	Move nextDirection;
+	MazeCell &cell = mappedMaze[curRow][curCol];
+	Move nextMove;
+	/*TODO:temp*/std::cout << "move()" << std::endl;
 
 	// change current cell.obstacle to SPACE, as the player is on it
 	if (cell.obstacle == MazeObstacle::UNKNOWN) {
-		cell.obstacle = MazeObstacle::SPACE;
+		updateCellObstacle(curRow, curCol, MazeObstacle::SPACE);
+	}
+	//update the directions taken from current cell
+	if (movedLastTurn) {
+		updateTriedFromOrigin(cell);
 	}
 
-	updateTriedFromOrigin(cell);
-
-	//place a bookmark if the player is not at the same cell as the bookmark, he haven't placed one and he isn't backtracking
-	if ((bookmarkLoc[0] != curLocation[0] || bookmarkLoc[1] != curLocation[1]) && !placedBookmark && cell.numOfDirsTried < 4) {
-		placedBookmark = true;
-		bookmarkLoc[0] = curLocation[0];
-		bookmarkLoc[1] = curLocation[1];
-		nextDirection = Move::BOOKMARK;
-	}
-	else {
-		int chosenDir = 0;
-		if (directionChosen) { //continue along the same direction
-			nextDirection = path.top();
-			chosenDir = nextDirection;
-			if (!cell.triedDirection[chosenDir]) {
-				cell.triedDirection[chosenDir] = true;
-				cell.numOfDirsTried++;
-			}
-		}
-		else if (cell.numOfDirsTried < 4) { //choose a random direction that wasn't tried yet
-			int numAvailable = 4 - cell.numOfDirsTried;
-			int randNum = rand() % numAvailable;
-
-			for (; randNum >= 0; chosenDir++) {
-				if (!cell.triedDirection[chosenDir]) randNum--;
-			}
-			chosenDir--;
-
-			nextDirection = Move(chosenDir);
-			directionChosen = true;
-			//update the cell's fields
-			cell.numOfDirsTried++;
-			cell.triedDirection[chosenDir] = true;
-		}
-		else { //backtrack along the walked path
-			directionChosen = false;
-			placedBookmark = false;
-			switch (path.top()) {
-			case Move::LEFT:
-				nextDirection = Move::RIGHT;
-				break;
-			case Move::RIGHT:
-				nextDirection = Move::LEFT;
-				break;
-			case Move::UP:
-				nextDirection = Move::DOWN;
-				break;
-			case Move::DOWN:
-				nextDirection = Move::UP;
-				break;
-			default:
-				break;
-			}
-			path.pop();
-		}
-	}
+	nextMove = chooseMove();
 
 	//update the player's location, add direction to path, and update map. do all of this only if the next direction is not a bookmark
-	if (nextDirection != Move::BOOKMARK) {
-		updateLocation(nextDirection);
-		if (directionChosen) {
-			path.push(nextDirection);
-			updateMap();
+	if (nextMove != Move::BOOKMARK) {
+		updateLocation(nextMove);
+		addNewCell(curRow, curCol, MazeObstacle::UNKNOWN);
+		updateKnownDimentions(nextMove);
+		if (!isBacktracking) {
+			path.push(nextMove);
 		}
+		movedLastTurn = true;
 	}
-
-	return nextDirection;
+	else { // nextMove == Move::BOOKMARK
+		bookmarks.push_back({ curRow, curCol });
+		movedLastTurn = false;
+	}
+	/*TODO:temp*/std::cout << "move() end" << std::endl;
+	return nextMove;
 }

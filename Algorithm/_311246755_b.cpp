@@ -223,9 +223,8 @@ void _311246755_b::updateTriedFromOrigin(MazeCell &cell) {
  */
 void _311246755_b::hitBookmark(int seq) {
 
-	if (seq > 100000000) {
-		std::cout << "just for debugging" << std::endl;
-	}
+	//do nothing if the bookmark is not the last one placed
+	if (seq != lastSeq) return;
 
 	/*TODO: use seq*/
 
@@ -376,6 +375,7 @@ AbstractAlgorithm::Move _311246755_b::move() {
 		bookmarkLoc[0] = curLocation[0];
 		bookmarkLoc[1] = curLocation[1];
 		nextDirection = Move::BOOKMARK;
+		lastSeq++;
 	}
 	else {
 		int chosenDir = 0;
