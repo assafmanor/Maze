@@ -15,6 +15,7 @@
 #define SPACE ' '
 #define PLAYER '@'
 #define TREASURE '$'
+#define BOOK_MARK 'B'
 
 #define SUCCESS 0
 #define FAILURE 1
@@ -33,7 +34,7 @@ class GameManager {
 
 	class Cell {
 	public:
-		char Obstacle; 
+		char Obstacle;
 		int bookmarSerial;
 		Cell() :Obstacle(' '), bookmarSerial(0) {};
 
@@ -43,8 +44,8 @@ class GameManager {
 	std::vector< std::vector<std::unique_ptr<Cell>>> maze;
 	std::string nameOfMaze; //holds the name of the maze given in the input file
 	std::string mazeFileName, outputFileName; //maze file path, output file path
-	std::unique_ptr<AbstractAlgorithm> &player;
-	
+	std::unique_ptr<AbstractAlgorithm>& player;
+
 	int playerRow, playerCol; //the row and col of the player at any phase
 	int maxSteps; //holds the max number of steps the player can move
 	bool occurredError; //indicates whether error occurred while processing input files
@@ -58,7 +59,7 @@ class GameManager {
 	int bookmarkCol; //the col of the placed bookmark
 	int currBookmarSerial;
 	std::ofstream fout;
-
+	bool providedOutputArg;
 	/*
 	 * process the input files
 	 * maze file format:
@@ -94,7 +95,7 @@ class GameManager {
 	 * stores the result in the passed arg agument
 	 * in case of success return SUCCESS(0) otherwise FAILURE(1)
 	 */
-	int extractNumFromString(std::string str, int &arg, std::string firstWord, std::string secondWord);
+	int extractNumFromString(std::string str, int& arg, std::string firstWord, std::string secondWord);
 
 	/*
 	 * prints the error specified in ErrorStatus to the screen
@@ -104,29 +105,29 @@ class GameManager {
 	/*
 	 *checks whether the given char c is a valid maze character
 	 */
-	bool validCharacter(const char &c);
+	bool validCharacter(const char& c);
 public:
 	/*
 	 * Constructor
 	 * first arg is the maze file
 	 * second arg is the output file
 	 */
-	explicit GameManager(const std::string mazeFile, const std::string outputFile, std::unique_ptr<AbstractAlgorithm> &_player) 
+	explicit GameManager(const std::string mazeFile, const std::string outputFile, std::unique_ptr<AbstractAlgorithm>& _player, bool _providedOutputArg)
 		: mazeFileName(mazeFile), outputFileName(outputFile), player(_player), occurredError(false), occurredWrongFormat(false),
-		wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1), currBookmarSerial(0) {};
+		wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1), currBookmarSerial(0), providedOutputArg(_providedOutputArg) {};
 
 	/*
 	 *simple destructor
 	 */
-	//virtual ~GameManager();
+	 //virtual ~GameManager();
 
-	/*
-	 * starts the game by processing the files
-	 * conduct interaction with the player
-	 * output to output file each step done by the player
-	 * and the result: X (in case of failing to solve the maze), ! (in case the maze was solved)
-	 * prints to screen the result
-	 * return number of steps the algo has taken
-	 */
+	 /*
+	  * starts the game by processing the files
+	  * conduct interaction with the player
+	  * output to output file each step done by the player
+	  * and the result: X (in case of failing to solve the maze), ! (in case the maze was solved)
+	  * prints to screen the result
+	  * return number of steps the algo has taken
+	  */
 	int startGame();
 };

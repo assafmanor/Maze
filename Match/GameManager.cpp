@@ -76,9 +76,10 @@ int GameManager::startGame() {
 		case TREASURE:
 			fout << "!";
 			std::cout << "Succeeded in " << i + 1 << " steps";
-			fout.close();
+			if (providedOutputArg) fout.close();
 			return  i + 1;
 		case PLAYER: //if the player has landed on the starting cell -- treat it as a space
+		case BOOK_MARK:
 		case SPACE:
 			playerRow = nextPlayerLoc[0];
 			playerCol = nextPlayerLoc[1];
@@ -87,16 +88,17 @@ int GameManager::startGame() {
 				player.get()->hitBookmark(0); //chage the hardcoded zero
 			}
 			*/
-			
+
 			if ((*maze[nextPlayerLoc[0]][nextPlayerLoc[1]]).Obstacle == 'B') {
-				player.get()->hitBookmark((*maze[nextPlayerLoc[0]][nextPlayerLoc[1]]).bookmarSerial); 
+				player.get()->hitBookmark((*maze[nextPlayerLoc[0]][nextPlayerLoc[1]]).bookmarSerial);
 			}
 			break;
 		}
 	}
 	//failed to solve maze in $maxSteps steps
 	fout << "X";
-	fout.close();
+	if (providedOutputArg)
+		fout.close();
 	std::cout << "Failed to solve maze in " << maxSteps << " steps" << std::endl;
 	return -1;
 }
@@ -109,9 +111,11 @@ int GameManager::openOutputFile() {
 		return FAILURE;
 	}
 	infile.close();
-	fout.open(outputFileName);
-	if (!fout.is_open())
-		return FAILURE;
+	if (providedOutputArg) {
+		fout.open(outputFileName);
+		if (!fout.is_open())
+			return FAILURE;
+	}
 	return SUCCESS;
 }
 int GameManager::processFiles(const std::string mazeFilePath) {
@@ -155,8 +159,8 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 			maze = new char*[numOfRows];
 			for (int i = 0; i < numOfRows; ++i)
 				maze[i] = new char[numOfCols];
-             */
-			//fill our maze with the given maze in the file
+			 */
+			 //fill our maze with the given maze in the file
 			for (int i = 0; i < numOfRows; ++i) {
 				int j = 0;
 				if (std::getline(fin, line)) {
@@ -229,7 +233,7 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 	}
 }
 
-bool GameManager::validCharacter(const char &c) {
+bool GameManager::validCharacter(const char& c) {
 	return (c == WALL || c == SPACE || c == PLAYER || c == TREASURE);
 }
 void GameManager::printMaze() {
@@ -325,7 +329,7 @@ void GameManager::printError(ErrorStatus error, std::string line, char c, size_t
 
 
 
-int GameManager::extractNumFromString(std::string str, int &arg, std::string firstWord, std::string secondWord) {
+int GameManager::extractNumFromString(std::string str, int& arg, std::string firstWord, std::string secondWord) {
 	std::vector<std::string> result;
 	std::istringstream iss(str);
 	//break the strings to tokens
@@ -345,7 +349,7 @@ int GameManager::extractNumFromString(std::string str, int &arg, std::string fir
 
 			}
 			//if no conversion could be performed
-			catch (const std::invalid_argument& e) {
+			catch (const std::invalid_argument & e) {
 				(void)e; // avoid "unreferenced local variable e" warnings
 				return FAILURE;
 			}
@@ -363,7 +367,7 @@ int GameManager::extractNumFromString(std::string str, int &arg, std::string fir
 
 	}
 	//if no conversion could be performed
-	catch (const std::invalid_argument& e) {
+	catch (const std::invalid_argument & e) {
 		(void)e; // avoid "unreferenced local variable e" warnings
 		return FAILURE;
 	}
