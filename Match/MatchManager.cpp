@@ -1,14 +1,5 @@
 #include "MatchManager.h"
 
-
-/*
-MatchManager::~MatchManager() {
-}
-*/
-/*
-MatchManager::MatchManager(const MatchManager&) {
-}
-*/
 int MatchManager::processCommandLineArgs(int numOfArgs, char** argv, std::vector<std::string>& result, bool& providedOutputArg) {
 	if (numOfArgs != 1 && numOfArgs != 3 && numOfArgs != 5 && numOfArgs != 7) {
 		std::cout << "Wrong number of arguments in command line" << std::endl;
@@ -52,11 +43,6 @@ int MatchManager::processCommandLineArgs(int numOfArgs, char** argv, std::vector
 }
 
 int MatchManager::startMatch() {
-	//parse command line args, in case of error we do not proceed
-	/*if (processCommandLineInput()) return FAILURE;*/
-	//mazesPath = "../mazes/in";
-	//algorithmsPath = "../Algorithm/";
-	//outputPath = "../output/";
 
 	extractFullMazesName();
 	extractMazesName();
@@ -65,7 +51,6 @@ int MatchManager::startMatch() {
 	assert(mazesFullNames.size() == mazesNames.size());
 
 	extractAlgorithmNames(algorithmNamesList);
-
 
 	AlgorithmRegistrar & registrar = AlgorithmRegistrar::getInstance();
 	//loading each algorithm
@@ -87,10 +72,10 @@ int MatchManager::startMatch() {
 		return FAILURE;
 	}
 
-
 	numOfMazes = mazesFullNames.size();
 	numOfAlgorithms = registrar.size();
 
+	//vector for holding the scores
 	std::vector<std::vector<int>> scores(numOfAlgorithms, std::vector<int>(numOfMazes, 0));
 
 
@@ -108,9 +93,7 @@ int MatchManager::startMatch() {
 		}
 	}
 	printScoresTable(scores);
-
 	return SUCCESS;
-
 }
 
 // listing the files in a directory and add them to our vector of names if the suffix is .maze
