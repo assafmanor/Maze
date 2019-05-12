@@ -1,5 +1,6 @@
 #include "AlgorithmRegistrar.h"
 
+
 /**
  * Adds a new algorithm factory to the list of algorithm factories.
  */
@@ -10,16 +11,22 @@ void AlgorithmRegistrar::registerAlgorithm(std::function<std::unique_ptr<Abstrac
 }
 
 
+AlgorithmRegistrar::~AlgorithmRegistrar() {
+	algorithmFactories.clear();
+	for (void *handle : handles) {
+		dlclose(handle);
+	}
+}
+
 /**
  *
  */
 RegistrationStatus AlgorithmRegistrar::loadAlgorithm(const std::string& path, const std::string& so_file_name_without_so_suffix) {
 	size_t size = instance.size();
-	void *handle;
 
 
 	//try to load the .so file
-	handle = dlopen(path.c_str(), RTLD_LAZY);
+	void *handle = dlopen(path.c_str(), RTLD_LAZY);
 
 	if(!handle) {
 		return FILE_CANNOT_BE_LOADED;
@@ -30,6 +37,7 @@ RegistrationStatus AlgorithmRegistrar::loadAlgorithm(const std::string& path, co
 		return NO_ALGORITHM_REGISTERED;
 	}
 	instance.setNameForLastAlgorithm(so_file_name_without_so_suffix);
+	handles.push_back(handle);
 	return ALGORITHM_REGISTERED_SUCCESSFULLY;
 }
 

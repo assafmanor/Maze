@@ -4,10 +4,12 @@
 #include <memory>
 #include "AbstractAlgorithm.h"
 
+
 class AlgorithmRegistration {
 public:
 	AlgorithmRegistration(std::function<std::unique_ptr<AbstractAlgorithm>()>);
 };
+
 
 
 #define REGISTER_ALGORITHM(class_name) \

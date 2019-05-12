@@ -2,6 +2,7 @@
 
 #include <string>
 #include <list>
+#include <vector>
 #include <functional>
 #include <memory>
 #include <cassert>
@@ -14,6 +15,8 @@ enum RegistrationStatus { ALGORITHM_REGISTERED_SUCCESSFULLY = 0, FILE_CANNOT_BE_
 
 class AlgorithmRegistrar {
 	//private:
+	std::vector<void*> handles;
+
 	std::list<std::string> algorithmNames;
 
 	std::list <std::function<std::unique_ptr<AbstractAlgorithm>()>> algorithmFactories;
@@ -43,6 +46,8 @@ public:
 	static AlgorithmRegistrar& getInstance() {
 		return instance;
 	}
+
+	virtual ~AlgorithmRegistrar();
 
 private:
 	static AlgorithmRegistrar instance;

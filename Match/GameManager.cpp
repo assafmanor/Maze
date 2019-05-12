@@ -75,7 +75,6 @@ int GameManager::startGame() {
 			break;
 		case TREASURE:
 			fout << "!";
-			std::cout << "Succeeded in " << i + 1 << " steps";
 			if (providedOutputArg) fout.close();
 			return  i + 1;
 		case PLAYER: //if the player has landed on the starting cell -- treat it as a space
@@ -99,7 +98,6 @@ int GameManager::startGame() {
 	fout << "X";
 	if (providedOutputArg)
 		fout.close();
-	std::cout << "Failed to solve maze in " << maxSteps << " steps" << std::endl;
 	return -1;
 }
 
@@ -152,14 +150,6 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 					maze[i].push_back(std::make_unique <Cell>());
 				}
 			}
-			/*TEMP*/std::cout << "maze.size(): " << maze.size() << std::endl;
-			/*TEMP*/std::cout << "maze[0].size(): " << maze[0].size() << std::endl;
-			/*
-			//inititalize the maze
-			maze = new char*[numOfRows];
-			for (int i = 0; i < numOfRows; ++i)
-				maze[i] = new char[numOfCols];
-			 */
 			 //fill our maze with the given maze in the file
 			for (int i = 0; i < numOfRows; ++i) {
 				int j = 0;

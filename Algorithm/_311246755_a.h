@@ -28,12 +28,6 @@ class _311246755_a : public AbstractAlgorithm {
 		bool hasBookmark;
 		int numOfDirsTried;
 		MazeObstacle obstacle;
-		/*TODO:temp*/friend std::ostream& operator<<(std::ostream& os, const _311246755_a::MazeCell& cell) {
-			MazeObstacle ob = cell.obstacle;
-			char c = (ob == MazeObstacle::SPACE ? ' ' : ob == MazeObstacle::UNKNOWN ? '?' : '#');
-			os << c;
-			return os;
-		}
 	};
 
 	//private fields
@@ -43,8 +37,8 @@ class _311246755_a : public AbstractAlgorithm {
 	int curRow = 0, curCol = 0;
 	std::vector <std::pair<int, int>> bookmarks; //key is the sequence number
 	bool isWidthKnown, isHeightKnown;
-	bool placedBookmark;
-	bool directionChosen;
+	bool placedBookmark = false;
+	bool isDirectionChosen = false;
 	bool isBacktracking = false;
 	bool movedLastTurn = false;
 	int leftmostKnownCol, rightmostKnownCol, lowestKnownRow, highestKnownRow;
@@ -54,6 +48,7 @@ class _311246755_a : public AbstractAlgorithm {
 	Move backtrackMove();
 	void updateTriedFromOrigin(MazeCell&);
 	void undoMove(Move);
+	std::pair <int, int> calcNextLocation(const Move);
 	void updateLocation(Move);
 	void updateMap();
 	void addNewCell(int, int, const MazeObstacle);
@@ -69,6 +64,7 @@ class _311246755_a : public AbstractAlgorithm {
 	void fixCols(const int);
 	void fixBookmarks(const int, const int);
 	int findCorrectCoord(const int, const int, const int);
+	bool doesCellExist(std::pair <int, int>);
 
 
 
@@ -78,7 +74,6 @@ public:
 	virtual Move move();
 	virtual void hitWall();
 	virtual void hitBookmark(int seq);
-	/*TODO:temp*/void printBoard();
 
 
 };

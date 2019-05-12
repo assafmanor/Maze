@@ -66,6 +66,7 @@ int MatchManager::startMatch() {
 
 	extractAlgorithmNames(algorithmNamesList);
 
+
 	AlgorithmRegistrar & registrar = AlgorithmRegistrar::getInstance();
 	//loading each algorithm
 	int i = 0;
@@ -86,7 +87,6 @@ int MatchManager::startMatch() {
 		return FAILURE;
 	}
 
-	//auto& algorithmNames = registrar.getAlgorithmNames();
 
 	numOfMazes = mazesFullNames.size();
 	numOfAlgorithms = registrar.size();
@@ -94,27 +94,19 @@ int MatchManager::startMatch() {
 	std::vector<std::vector<int>> scores(numOfAlgorithms, std::vector<int>(numOfMazes, 0));
 
 
-	/*TODO:temp*/std::cout << "numOfAlgorithms: " << numOfAlgorithms << std::endl;
-	/*TODO:temp*/std::cout << "num of algorithm names" << registrar.getAlgorithmNames().size() << std::endl;
-	/*TODO:temp*/std::cout << "numOfMazes: " << numOfMazes << std::endl;
-
 	//run all Algorithms on all mazes and store the scores
 	for (int i = 0; i < numOfMazes; ++i) {
 		auto algorithms = registrar.getAlgorithms();
-		//auto pName = algorithmNames.begin();
-		//auto& algosmNames = registrar.getAlgorithmNames();
-		//auto pName = algosmNames.begin();
 		auto pName = algorithmNamesList.begin();
 		auto algos = algorithms.begin();
 		for (int j = 0; j < static_cast<int>(numOfAlgorithms); ++j, algos++) {
 			GameManager game(mazesFullNames.at(i), outputPath + mazesNames.at(i) + *(pName++) + ".output", *algos, providedOutputArg);
 			if ((scores[j][i] = game.startGame()) == -2) {
-				//std::cout << "Failed processing files" << std::endl;
+				//failed processing files;
 				continue;
 			}
 		}
 	}
-
 	printScoresTable(scores);
 
 	return SUCCESS;
@@ -146,7 +138,10 @@ void MatchManager::extractAlgorithmNames(std::list<std::string> & names) {
 			//remove the extension
 			std::string  filenameNoExtension = filenameWithExtension.substr(0, filenameWithExtension.find_last_of("."));
 			names.push_back(filenameNoExtension);
-			eachAlgorithmPaths.push_back(fullPath);
+			//convert from a possibly relative path to the real path
+			char resolved_path[260];
+			realpath(fullPath.c_str(), resolved_path);
+			eachAlgorithmPaths.push_back(resolved_path);
 		}
 	}
 }

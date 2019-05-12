@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <iomanip>
 #include <cassert>
+#include <linux/limits.h>
 #include "AbstractAlgorithm.h"
 #include "GameManager.h"
 #include "AlgorithmRegistrar.h"
