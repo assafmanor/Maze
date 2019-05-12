@@ -28,6 +28,7 @@ _311246755_a::MazeCell::MazeCell() : hasBookmark(false), numOfDirsTried(0), obst
 
 _311246755_a::MazeCell::~MazeCell() {}
 
+
 /**
  * Copy constructor
  * Copies each field by value
@@ -56,7 +57,8 @@ _311246755_a::_311246755_a() :
 	//add the starting cell to the memorized map
 	addNewCell(0, 0, MazeObstacle::SPACE);
 }
-//No memory is needed to be freed
+
+
 _311246755_a::~_311246755_a() {}
 
 
@@ -125,7 +127,7 @@ void _311246755_a::updateLocation(const Move move) {
 }
 
 
-/*
+/**
  * Adds a new cell at location to the mapped maze, given only an obstacle.
  */
 void _311246755_a::addNewCell(const int row, const int col, const MazeObstacle obstacle) {
@@ -133,7 +135,8 @@ void _311246755_a::addNewCell(const int row, const int col, const MazeObstacle o
 	addNewCell(row, col, cell);
 }
 
-/*
+
+/**
  * Adds a new cell at location to the mapped maze, given an existing cell.
  */
 void _311246755_a::addNewCell(const int row, const int col, MazeCell &cell) {
@@ -200,6 +203,7 @@ AbstractAlgorithm::Move _311246755_a::chooseRandomDirection(MazeCell &cell) {
 	return nextMove;
 }
 
+
 /**
  * Returns the opposite direction to the last direction the player moved.
  */
@@ -220,8 +224,9 @@ AbstractAlgorithm::Move _311246755_a::backtrackMove() {
 	}
 }
 
-/*
- * Chooses the next move direction
+
+/**
+ * Chooses the next move direction.
  */
 AbstractAlgorithm::Move _311246755_a::chooseMove() {
 	MazeCell &cell = mappedMaze[curRow][curCol];
@@ -360,7 +365,8 @@ void _311246755_a::unifyRows(std::map <int, MazeCell> receiver, std::map <int, M
 
 
 /**
- * 
+ * Moves the information gathered from cells with wrong row values to the corresponding cells in mappedMaze (the ones that have the correct row value).
+ * The information is then unified with the information already gathered by the correct cell, or a new cell is created.
  */
 void _311246755_a::fixRows(const int mazeHeight) {
 	int curRowNum;
@@ -382,7 +388,8 @@ void _311246755_a::fixRows(const int mazeHeight) {
 
 
 /**
- *
+ * Moves the information gathered from cells with wrong column values to the corresponding cells in mappedMaze (the ones that have the correct column value).
+ * The information is then unified with the information already gathered by the correct cell, or a new cell is created.
  */
 void _311246755_a::fixCols(const int mazeWidth) {
 	int tooLeftColNum;
@@ -411,7 +418,8 @@ void _311246755_a::fixCols(const int mazeWidth) {
 
 
 /**
- *
+ * Fixes the coordinates of all bookmarks according to the given maze width and height.
+ * This method works only if exactly one of the values of mazeWidth and mazeHeight is -1 (meaning that the value is irrelevant).
  */
 void _311246755_a::fixBookmarks(const int mazeWidth, const int mazeHeight) {
 	int bRow, bCol;
@@ -444,7 +452,8 @@ int _311246755_a::findCorrectCoord(const int oldCoord, const int thresh, const i
 
 
 /**
- *
+ * Returns true iff there exists a cell in mappedMaze with coordinates matching loc.
+ * i.e. mappedMaze[loc.first][loc.second].
  */
 bool _311246755_a::doesCellExist(std::pair <int, int> loc) {
 	const int row = loc.first;
@@ -461,7 +470,10 @@ bool _311246755_a::doesCellExist(std::pair <int, int> loc) {
 // PUBLIC METHODS
 
 /**
- *
+ * Compares between the coordinates remembered by bookmarks.at(seq -1) and the current location.
+ * If it turns out that they are different, then the player has passed through one of the borders.
+ * The method uses this information in order to narrow down the size of the mappedMaze.
+ * The information from cells with wrong coordinates is then transfered to the cells with the corresponding correct coordinates.
  */
 void _311246755_a::hitBookmark(int seq) {
 	if (!isDirectionChosen) return; //the player hit the bookmark because he was backtracking, so there's nothing to deduce
@@ -515,7 +527,7 @@ void _311246755_a::hitWall() {
 
 
 /**
- * 
+ * Chooses the next move, updates the map, bookmarks, and path.
  */
 AbstractAlgorithm::Move _311246755_a::move() {
 	MazeCell &cell = mappedMaze[curRow][curCol];
@@ -531,14 +543,14 @@ AbstractAlgorithm::Move _311246755_a::move() {
 		updateTriedFromOrigin(cell);
 	}
 
-	//choose the next move. try to avoid walls and cells that all directions were already tried.
+	//choose the next move. try to avoid walls and cells that already tried the chosen direction.
 	for(int i = 0; i < 4; i++) {
 		if(i > 0) isDirectionChosen = false;
 		nextMove = chooseMove();
 		auto nextLoc = calcNextLocation(nextMove);
 		if (isBacktracking || nextMove == Move::BOOKMARK || !doesCellExist(nextLoc)) break;
 		MazeCell& cell = mappedMaze[nextLoc.first][nextLoc.second];
-		if (cell.obstacle == MazeObstacle::WALL && cell.numOfDirsTried == 4) break;
+		if (cell.obstacle != MazeObstacle::WALL && !cell.triedDirection[nextMove]) break;
 	}
 	
 	//update the player's location, add direction to path, and update map. do all of this only if the next direction is not a bookmark

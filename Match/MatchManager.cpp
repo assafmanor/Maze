@@ -67,8 +67,6 @@ int MatchManager::startMatch() {
 		}
 	}
 	if (registrar.size() == 0) {
-		// TODO: no algorithms loaded - print usage etc.
-		// TOOD: for Oleg: i'm not sure what you mean by print usage etc.
 		return FAILURE;
 	}
 

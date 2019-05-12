@@ -31,7 +31,6 @@ class MatchManager {
 	std::vector<std::string> mazesNames;
 
 	std::string mazesPath, algorithmsPath, outputPath;
-	//std::map<std::string, std::function<std::unique_ptr<AbstractAlgorithm>()>> Factory;
 	std::vector<std::unique_ptr<AbstractAlgorithm>> ListOfAlgorithms;
 	std::vector<std::string> eachAlgorithmPaths;
 	std::list<std::string> algorithmNamesList;
