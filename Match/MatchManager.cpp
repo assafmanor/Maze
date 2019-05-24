@@ -1,14 +1,15 @@
 #include "MatchManager.h"
 
-int MatchManager::processCommandLineArgs(int numOfArgs, char** argv, std::vector<std::string>& result, bool& providedOutputArg) {
-	if (numOfArgs != 1 && numOfArgs != 3 && numOfArgs != 5 && numOfArgs != 7) {
+int MatchManager::processCommandLineArgs(int numOfArgs, char** argv, std::vector<std::string>& result, int &numOfThreads, bool& providedOutputArg) {
+	if (numOfArgs != 1 && numOfArgs != 3 && numOfArgs != 5 && numOfArgs != 7 && numOfArgs != 9) {
 		std::cout << "Wrong number of arguments in command line" << std::endl;
-		std::cout << "each path should be accompanied with a tag as follows:" << std::endl;
-		std::cout << "match -maze_path <path> -algorithm_path <algorithm path> -output <output path>" << std::endl;
+		std::cout << "each argument should be accompanied with a tag as follows:" << std::endl;
+		std::cout << "match -maze_path <path> -algorithm_path <algorithm path> -output <output path> -num_threads <num of threads>" << std::endl;
 		return FAILURE;
 	}
 	std::vector<std::string> temp;
 	providedOutputArg = false;
+	numOfThreads = 1;
 	for (int i = 0; i < 3; ++i) {
 		result.push_back("./");
 	}
@@ -16,7 +17,25 @@ int MatchManager::processCommandLineArgs(int numOfArgs, char** argv, std::vector
 		temp.push_back(std::string(argv[i]));
 	}
 	for (int j = 1; j < numOfArgs; ++j) {
-		if (temp.at(j).compare("-maze_path") == 0) {
+		if (temp.at(j).compare("-num_threads") == 0) {
+			//try convert number represented as string to int 
+			try {
+				numOfThreads = std::stoi(temp.at(j+1));
+				if (numOfThreads <= 0) {
+					std::cout << "number Of Threads int command line arguments has to be at least 1" << std::endl;
+					return FAILURE;
+				}
+				++j;
+			}
+			//if no conversion could be performed
+			catch (const std::invalid_argument & e) {
+				(void)e; // avoid "unreferenced local variable e" warnings
+				std::cout << "expected number after the -num_threads tag" << std::endl;
+				std::cout << "provided: " << temp.at(j) << std::endl;
+				return FAILURE;
+			}
+		}
+		else if (temp.at(j).compare("-maze_path") == 0) {
 			result.at(0) = temp.at(j + 1);
 			++j;
 		}
@@ -38,8 +57,6 @@ int MatchManager::processCommandLineArgs(int numOfArgs, char** argv, std::vector
 		}
 	}
 	return SUCCESS;
-
-
 }
 
 int MatchManager::startMatch() {
@@ -76,22 +93,46 @@ int MatchManager::startMatch() {
 	//vector for holding the scores
 	std::vector<std::vector<int>> scores(numOfAlgorithms, std::vector<int>(numOfMazes, 0));
 
-
-	//run all Algorithms on all mazes and store the scores
-	for (int i = 0; i < numOfMazes; ++i) {
-		auto algorithms = registrar.getAlgorithms();
-		auto pName = algorithmNamesList.begin();
-		auto algos = algorithms.begin();
-		for (int j = 0; j < static_cast<int>(numOfAlgorithms); ++j, algos++) {
-			GameManager game(mazesFullNames.at(i), outputPath + mazesNames.at(i) + *(pName++) + ".output", *algos, providedOutputArg);
-			if ((scores[j][i] = game.startGame()) == -2) {
-				//failed processing files;
-				continue;
-			}
-		}
+	std::vector<std::thread> threads;
+	// define and run threads
+	for (int i = 0; i < numOfThreads; ++i) {
+		threads.push_back(std::thread(&MatchManager::runGames, this, std::ref(registrar), std::ref(scores)));
+		
 	}
+	//std::cout << "after define and run threads" << std::endl;
+
+	for (auto& th : threads)	th.join();
+
 	printScoresTable(scores);
 	return SUCCESS;
+}
+
+void MatchManager::runGames(AlgorithmRegistrar &registrar, std::vector<std::vector<int>> &scores) {
+	int i, j;
+	while (true) {
+		safelyIncIndexes(i, j);
+		if (finished) break;
+		auto algoItr = algorithmNamesList.begin();
+		std::advance(algoItr, j);
+		std::unique_ptr<AbstractAlgorithm> algorithm;
+		registrar.getAlgorithmAt(algorithm, j);
+		GameManager game(mazesFullNames.at(i), outputPath + mazesNames.at(i) + *algoItr + ".output", algorithm, providedOutputArg);
+		scores[j][i] = game.startGame();
+	}
+}
+
+void MatchManager::safelyIncIndexes(int &i, int &j) {
+	std::lock_guard<std::mutex> guard(mutex);
+	if (currMaze == numOfMazes - 1 && currAlgo == ((int)numOfAlgorithms) - 1) finished = true;
+	else if (currAlgo < ((int)numOfAlgorithms) - 1) {
+		++currAlgo;
+	}
+	else{//(currAlgo == ((int)numOfAlgorithms) - 1) {
+		currAlgo = 0;
+		++currMaze;
+	}
+	i = currMaze;
+	j = currAlgo;
 }
 
 // listing the files in a directory and add them to our vector of names if the suffix is .maze

@@ -8,6 +8,7 @@
 #include <cassert>
 #include <dlfcn.h>
 #include "AbstractAlgorithm.h"
+#include <iterator>
 
 
 enum RegistrationStatus { ALGORITHM_REGISTERED_SUCCESSFULLY = 0, FILE_CANNOT_BE_LOADED = -1, NO_ALGORITHM_REGISTERED = -2 };
@@ -34,6 +35,8 @@ public:
 	RegistrationStatus loadAlgorithm(const std::string& path, const std::string& so_file_name_without_so_suffix);
 
 	std::list<std::unique_ptr<AbstractAlgorithm>> getAlgorithms() const;
+
+	void getAlgorithmAt(std::unique_ptr<AbstractAlgorithm> &algorithm, int index);
 
 	const std::list<std::string>& getAlgorithmNames() const {
 		return algorithmNames;

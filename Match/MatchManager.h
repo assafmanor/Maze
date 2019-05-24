@@ -12,6 +12,9 @@
 #include "AbstractAlgorithm.h"
 #include "GameManager.h"
 #include "AlgorithmRegistrar.h"
+#include <thread>
+#include <mutex>
+#include <iterator>
 
 
 #define SUCCESS 0
@@ -37,6 +40,11 @@ class MatchManager {
 	bool providedOutputArg;
 	int numOfMazes;
 	size_t numOfAlgorithms;
+	int numOfThreads;
+	int currAlgo, currMaze; //init
+	std::mutex mutex;
+	bool finished;
+	
 
 	/*
 	 * prints the error specified in Errors to the screen
@@ -65,7 +73,7 @@ class MatchManager {
 
 public:
 
-	MatchManager(std::string _mazesPath, std::string _algorithmsPath, std::string _outputPath, bool _providedOutputArg) : mazesPath(_mazesPath), algorithmsPath(_algorithmsPath), outputPath(_outputPath), providedOutputArg(_providedOutputArg) {};
+	MatchManager(std::string _mazesPath, std::string _algorithmsPath, std::string _outputPath, int _numOfThreads, bool _providedOutputArg) : mazesPath(_mazesPath), algorithmsPath(_algorithmsPath), outputPath(_outputPath), providedOutputArg(_providedOutputArg), numOfThreads(_numOfThreads), currAlgo(-1), currMaze(0), finished(false){};
 	MatchManager(MatchManager&&) = default; //move constructor
 
 	/*
@@ -83,9 +91,10 @@ public:
 	 * in result[2] the output_path
 	 * storen false in providedOutputArg In case -output argument is missing, true otherwise
 	 */
-	static int processCommandLineArgs(int numOfArgs, char** argv, std::vector<std::string>& result, bool& providedOutputArg);
+	static int processCommandLineArgs(int numOfArgs, char** argv, std::vector<std::string>& result, int &numOfThreads, bool& providedOutputArg);
 
-
+	void runGames(AlgorithmRegistrar &registrar, std::vector<std::vector<int>> &scores);
+	void safelyIncIndexes(int &i, int &j);
 
 
 };
