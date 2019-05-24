@@ -3,7 +3,7 @@ COMP = g++-8.3.0
 OBJS = main.o AlgorithmRegistration.o AlgorithmRegistrar.o GameManager.o MatchManager.o
 EXEC = match
 CPP_COMP_FLAG = -std=c++17 -Wall -Wextra -Werror -pedantic-errors -DNDEBUG 
-CPP_LINK_FLAG = -ldl -export-dynamic -rdynamic
+CPP_LINK_FLAG = -ldl -export-dynamic -rdynamic -pthread
 FILESYSTEM_FLAG = -lstdc++fs
 
 $(EXEC): $(OBJS)
