@@ -31,7 +31,7 @@ int MatchManager::processCommandLineArgs(int numOfArgs, char** argv, std::vector
 			catch (const std::invalid_argument & e) {
 				(void)e; // avoid "unreferenced local variable e" warnings
 				std::cout << "expected number after the -num_threads tag" << std::endl;
-				std::cout << "provided: " << temp.at(j) << std::endl;
+				std::cout << "provided: " << temp.at(j+1) << std::endl;
 				return FAILURE;
 			}
 		}
