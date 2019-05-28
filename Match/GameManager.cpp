@@ -1,97 +1,26 @@
 #include "GameManager.h"
 
-/*
-GameManager::~GameManager() {
-	if (maze != nullptr) {
-		for (int i = 0; i < numOfRows; ++i)
-			delete maze[i];
-		delete[] maze;
-	}
-}*/
 
 int GameManager::startGame() {
 	if (processFiles(mazeFileName)) {
-		//std::cout << "FAILURE" << std::endl;
 		return -2; // in case of failure no need to run the player
 	}
 	//read moves from player for a maximum of $maxSteps steps
 	AbstractAlgorithm::Move curMove;
-	int nextPlayerLoc[2];
+	std::pair<int, int> nextPlayerLoc;
 	for (int i = 0; i < maxSteps; ++i) {
 		curMove = player.get()->move();
-		//check if player has hit a wall, the bookmark or the treasure
-		char obstacle;
-		switch (curMove) {
-
-		case AbstractAlgorithm::Move::LEFT:
-			nextPlayerLoc[0] = playerRow;
-			if (playerCol == 0) {
-				nextPlayerLoc[1] = numOfCols - 1;
+		movePlayerAccordingToAlgorithm(curMove, nextPlayerLoc);
+		writeMoveToFile(curMove);
+		if (curMove == AbstractAlgorithm::Move::BOOKMARK) continue; //same cell -- no need to handle obstacle
+		else {
+			char obstacle = (*maze[nextPlayerLoc.first][nextPlayerLoc.second]).obstacle;
+			int res = handleObstacle(obstacle, nextPlayerLoc);
+			if (res > 0) { //player has found the treasure
+				fout << "!";
+				if (providedOutputArg) fout.close();
+				return i+1;
 			}
-			else {
-				nextPlayerLoc[1] = playerCol - 1;
-			}
-			fout << "L" << std::endl;
-			break;
-
-		case AbstractAlgorithm::Move::RIGHT:
-			nextPlayerLoc[0] = playerRow;
-			nextPlayerLoc[1] = (playerCol + 1) % numOfCols;
-			fout << "R" << std::endl;
-			break;
-
-		case AbstractAlgorithm::Move::UP:
-			if (playerRow == 0) {
-				nextPlayerLoc[0] = numOfRows - 1;
-			}
-			else {
-				nextPlayerLoc[0] = playerRow - 1;
-			}
-			nextPlayerLoc[1] = playerCol;
-			fout << "U" << std::endl;
-			break;
-
-		case AbstractAlgorithm::Move::DOWN:
-			nextPlayerLoc[0] = (playerRow + 1) % numOfRows;
-			nextPlayerLoc[1] = playerCol;
-			fout << "D" << std::endl;
-			break;
-
-		default: //Direction::BOOKMARK
-			(*maze[playerRow][playerCol]).Obstacle = 'B';
-			(*maze[playerRow][playerCol]).bookmarSerial = ++currBookmarSerial;
-			//bookmarkRow = playerRow;
-			//bookmarkCol = playerCol;
-			fout << "B" << std::endl;
-			break;
-		}
-
-		//find out what is the obstacle on the cell that the player landed on
-		if (curMove == AbstractAlgorithm::Move::BOOKMARK) continue; //same cell -- no need to check
-		obstacle = (*maze[nextPlayerLoc[0]][nextPlayerLoc[1]]).Obstacle;
-		switch (obstacle) {
-		case WALL:
-			player.get()->hitWall();
-			break;
-		case TREASURE:
-			fout << "!";
-			if (providedOutputArg) fout.close();
-			return  i + 1;
-		case PLAYER: //if the player has landed on the starting cell -- treat it as a space
-		case BOOK_MARK:
-		case SPACE:
-			playerRow = nextPlayerLoc[0];
-			playerCol = nextPlayerLoc[1];
-			/*
-			if (nextPlayerLoc[0] == bookmarkRow && nextPlayerLoc[1] == bookmarkCol) {
-				player.get()->hitBookmark(0); //chage the hardcoded zero
-			}
-			*/
-
-			if ((*maze[nextPlayerLoc[0]][nextPlayerLoc[1]]).Obstacle == 'B') {
-				player.get()->hitBookmark((*maze[nextPlayerLoc[0]][nextPlayerLoc[1]]).bookmarSerial);
-			}
-			break;
 		}
 	}
 	//failed to solve maze in $maxSteps steps
@@ -101,6 +30,102 @@ int GameManager::startGame() {
 	return -1;
 }
 
+
+/**
+ * Checks the given obstacle and calls the relevant methods if necessary (hitWall() and hitBookmark()).
+ * Also reports if the player has found the treasure: returns 1 if the treasure was found, otherwise 0.
+ */
+int GameManager::handleObstacle(char obstacle, std::pair<int, int> nextPlayerLoc) {
+	switch (obstacle) {
+	case WALL:
+		player.get()->hitWall();
+		break;
+	case TREASURE:
+		return  1;
+	case PLAYER: //if the player has landed on the starting cell -- treat it as a space
+	case BOOK_MARK:
+	case SPACE:
+		playerRow = nextPlayerLoc.first;
+		playerCol = nextPlayerLoc.second;
+		if ((*maze[nextPlayerLoc.first][nextPlayerLoc.second]).obstacle == 'B') {
+			player.get()->hitBookmark((*maze[nextPlayerLoc.first][nextPlayerLoc.second]).bookmarSerial);
+		}
+		break;
+	}
+	return 0;
+}
+
+
+/**
+ *
+ */
+void GameManager::movePlayerAccordingToAlgorithm(AbstractAlgorithm::Move move, std::pair<int, int> &nextPlayerLoc) {
+	switch (move) {
+	case AbstractAlgorithm::Move::LEFT:
+		nextPlayerLoc.first = playerRow;
+		if (playerCol == 0) {
+			nextPlayerLoc.second = numOfCols - 1;
+		}
+		else {
+			nextPlayerLoc.second = playerCol - 1;
+		}
+		break;
+
+	case AbstractAlgorithm::Move::RIGHT:
+		nextPlayerLoc.first = playerRow;
+		nextPlayerLoc.second = (playerCol + 1) % numOfCols;
+		break;
+
+	case AbstractAlgorithm::Move::UP:
+		if (playerRow == 0) {
+			nextPlayerLoc.first = numOfRows - 1;
+		}
+		else {
+			nextPlayerLoc.first = playerRow - 1;
+		}
+		nextPlayerLoc.second = playerCol;
+		break;
+
+	case AbstractAlgorithm::Move::DOWN:
+		nextPlayerLoc.first = (playerRow + 1) % numOfRows;
+		nextPlayerLoc.second = playerCol;
+		break;
+
+	default: //Direction::BOOKMARK
+		(*maze[playerRow][playerCol]).obstacle = 'B';
+		(*maze[playerRow][playerCol]).bookmarSerial = ++currBookmarSerial;
+		break;
+	}
+}
+
+
+/**
+ *
+ */
+void GameManager::writeMoveToFile(AbstractAlgorithm::Move move) {
+	switch (move) {
+	case AbstractAlgorithm::Move::LEFT:
+		fout << "L" << std::endl;
+		break;
+	case AbstractAlgorithm::Move::RIGHT:
+		fout << "R" << std::endl;
+		break;
+	case AbstractAlgorithm::Move::UP:
+		fout << "U" << std::endl;
+		break;
+	case AbstractAlgorithm::Move::DOWN:
+		fout << "D" << std::endl;
+		break;
+	default: //Direction::BOOKMARK
+		fout << "B" << std::endl;
+		break;
+	}
+}
+
+
+/**
+ * 
+ */
 int GameManager::openOutputFile() {
 	//check if the file already exist
 	std::ifstream infile(outputFileName);
@@ -156,10 +181,10 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 				if (std::getline(fin, line)) {
 					for (int length = (int)line.length(); j < length && j < numOfCols; ++j) {
 						if (line[j] == '\r') {
-							(*maze[i][j]).Obstacle = SPACE;
+							(*maze[i][j]).obstacle = SPACE;
 						}
 						else {
-							(*maze[i][j]).Obstacle = line[j];
+							(*maze[i][j]).obstacle = line[j];
 						}
 
 						//counts the number of players and treasures provided
@@ -174,7 +199,7 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 					}
 				}
 				while (j < numOfCols) {
-					(*maze[i][j]).Obstacle = SPACE;
+					(*maze[i][j]).obstacle = SPACE;
 					++j;
 				}
 			}
@@ -198,9 +223,9 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 			//characters validation provided in maze
 			for (int i = 0; i < numOfRows; ++i) {
 				for (int j = 0; j < numOfCols; ++j) {
-					if (!validCharacter((*maze[i][j]).Obstacle)) {
-						if (!((*maze[i][j]).Obstacle == '\r' && j == numOfCols - 1)) {
-							printError(ErrorStatus::Wrong_Character, "", (*maze[i][j]).Obstacle, i + 1, j + 1);
+					if (!validCharacter((*maze[i][j]).obstacle)) {
+						if (!((*maze[i][j]).obstacle == '\r' && j == numOfCols - 1)) {
+							printError(ErrorStatus::Wrong_Character, "", (*maze[i][j]).obstacle, i + 1, j + 1);
 							occurredError = true;
 						}
 					}
@@ -234,7 +259,7 @@ void GameManager::printMaze() {
 
 	for (int i = 0; i < numOfRows; ++i) {
 		for (int j = 0; j < numOfCols; ++j) {
-			std::cout << (*maze[i][j]).Obstacle;
+			std::cout << (*maze[i][j]).obstacle;
 		}
 		std::cout << std::endl;
 	}

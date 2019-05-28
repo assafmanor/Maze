@@ -53,6 +53,8 @@ std::list<std::unique_ptr<AbstractAlgorithm>> AlgorithmRegistrar::getAlgorithms(
 	}
 	return algorithms;
 }
+
+
 void AlgorithmRegistrar::getAlgorithmAt(std::unique_ptr<AbstractAlgorithm> &algorithm, int index) {
 	auto itr = algorithmFactories.begin();
 	std::advance(itr, index);

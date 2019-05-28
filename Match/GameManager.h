@@ -34,9 +34,9 @@ class GameManager {
 
 	class Cell {
 	public:
-		char Obstacle;
+		char obstacle;
 		int bookmarSerial;
-		Cell() :Obstacle(' '), bookmarSerial(0) {};
+		Cell() :obstacle(' '), bookmarSerial(0) {};
 
 	};
 
@@ -116,10 +116,6 @@ public:
 		: mazeFileName(mazeFile), outputFileName(outputFile), player(_player), occurredError(false), occurredWrongFormat(false),
 		wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1), currBookmarSerial(0), providedOutputArg(_providedOutputArg) {};
 
-	/*
-	 *simple destructor
-	 */
-	 //virtual ~GameManager();
 
 	 /*
 	  * starts the game by processing the files
@@ -130,4 +126,13 @@ public:
 	  * return number of steps the algo has taken
 	  */
 	int startGame();
+
+
+	int handleObstacle(char, std::pair<int, int>);
+
+
+	void movePlayerAccordingToAlgorithm(AbstractAlgorithm::Move, std::pair<int, int>&);
+
+
+	void writeMoveToFile(AbstractAlgorithm::Move);
 };
