@@ -60,6 +60,8 @@ class GameManager {
 	int currBookmarSerial;
 	std::ofstream fout;
 	bool providedOutputArg;
+
+
 	/*
 	 * process the input files
 	 * maze file format:
@@ -77,16 +79,13 @@ class GameManager {
 	 */
 	int processFiles(const std::string mazeFilePath);
 
+
 	/*
 	 * opens the output file
 	 * in case of success return SUCCESS(0) otherwise FAILURE(1)
 	 */
 	int openOutputFile();
 
-	/*
-	 *prints the maze the game manager holds
-	 */
-	void printMaze();
 
 	/*
 	 * extract the number from received string of the form: "blabla = 5"
@@ -95,18 +94,23 @@ class GameManager {
 	 * stores the result in the passed arg agument
 	 * in case of success return SUCCESS(0) otherwise FAILURE(1)
 	 */
-	int extractNumFromString(std::string str, int& arg, std::string firstWord, std::string secondWord);
+	int extractNumFromString(std::string str, int& arg, std::string firstWord, std::string secondWord) const;
+
 
 	/*
 	 * prints the error specified in ErrorStatus to the screen
 	 */
 	void printError(ErrorStatus error, std::string line = "", char c = ' ', std::size_t row = 0, std::size_t col = 0);
 
+
 	/*
 	 *checks whether the given char c is a valid maze character
 	 */
-	bool validCharacter(const char& c);
+	bool isValidCharacter(const char& c);
+
+
 public:
+
 	/*
 	 * Constructor
 	 * first arg is the maze file
@@ -117,22 +121,33 @@ public:
 		wrongMazeInput(false), numOfPlayersProvided(0), numOfTreasuresProvided(0), bookmarkRow(-1), bookmarkCol(-1), currBookmarSerial(0), providedOutputArg(_providedOutputArg) {};
 
 
-	 /*
-	  * starts the game by processing the files
-	  * conduct interaction with the player
-	  * output to output file each step done by the player
-	  * and the result: X (in case of failing to solve the maze), ! (in case the maze was solved)
-	  * prints to screen the result
-	  * return number of steps the algo has taken
-	  */
+	/*
+	 * starts the game by processing the files
+	 * conduct interaction with the player
+	 * output to output file each step done by the player
+	 * and the result: X (in case of failing to solve the maze), ! (in case the maze was solved)
+	 * prints to screen the result
+	 * return number of steps the algo has taken
+	 */
 	int startGame();
 
 
+	/**
+	 * Checks the given obstacle and calls the relevant methods if necessary (hitWall() and hitBookmark()).
+	 * Also reports if the player has found the treasure: returns 1 if the treasure was found, otherwise 0.
+	 */
 	int handleObstacle(char, std::pair<int, int>);
 
 
-	void movePlayerAccordingToAlgorithm(AbstractAlgorithm::Move, std::pair<int, int>&);
+	/**
+	 * Moves the player inside the maze according to the given move.
+	 * i.e: updates the values of nextPlayerLoc.
+	 */
+	void movePlayerAccordingToAlgorithm(const AbstractAlgorithm::Move, std::pair<int, int>&);
 
 
+	/**
+	 * Writes the given move in a new row to the output file.
+	 */
 	void writeMoveToFile(AbstractAlgorithm::Move);
 };

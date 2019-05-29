@@ -7,7 +7,7 @@ int GameManager::startGame() {
 	}
 	//read moves from player for a maximum of $maxSteps steps
 	AbstractAlgorithm::Move curMove;
-	std::pair<int, int> nextPlayerLoc;
+	std::pair<int, int> nextPlayerLoc; // nextPlayerLoc.first = next row, nextPlayerLoc.second == next col.
 	for (int i = 0; i < maxSteps; ++i) {
 		curMove = player.get()->move();
 		movePlayerAccordingToAlgorithm(curMove, nextPlayerLoc);
@@ -57,9 +57,10 @@ int GameManager::handleObstacle(char obstacle, std::pair<int, int> nextPlayerLoc
 
 
 /**
- *
+ * Moves the player inside the maze according to the given move.
+ * i.e: updates the values of nextPlayerLoc.
  */
-void GameManager::movePlayerAccordingToAlgorithm(AbstractAlgorithm::Move move, std::pair<int, int> &nextPlayerLoc) {
+void GameManager::movePlayerAccordingToAlgorithm(const AbstractAlgorithm::Move move, std::pair<int, int> &nextPlayerLoc) {
 	switch (move) {
 	case AbstractAlgorithm::Move::LEFT:
 		nextPlayerLoc.first = playerRow;
@@ -100,7 +101,7 @@ void GameManager::movePlayerAccordingToAlgorithm(AbstractAlgorithm::Move move, s
 
 
 /**
- *
+ * Writes the given move in a new row to the output file.
  */
 void GameManager::writeMoveToFile(AbstractAlgorithm::Move move) {
 	switch (move) {
@@ -123,8 +124,9 @@ void GameManager::writeMoveToFile(AbstractAlgorithm::Move move) {
 }
 
 
-/**
- * 
+/*
+ * opens the output file
+ * in case of success return SUCCESS(0) otherwise FAILURE(1)
  */
 int GameManager::openOutputFile() {
 	//check if the file already exist
@@ -141,6 +143,23 @@ int GameManager::openOutputFile() {
 	}
 	return SUCCESS;
 }
+
+
+/*
+ * process the input files
+ * maze file format:
+ * Line 1: maze name
+ * Line 2: MaxSteps=<num> MaxSteps for solving this maze.
+ * Line 3: Rows=<num> Number of Rows in maze.
+ * Line 4: Cols=<num> Number of Cols in maze.
+ * Lines 5 and on: the maze itself.
+ * valid maze characters:
+ * # - represents a wall
+ * space - represents a pass
+ * @ - represents the player in the maze (initial position of the player)
+ * $ - represents the end of the maze (the treasure that we seek)
+ * if there were errors while reading or analyzing the input file appropriate massage printed to the screen
+ */
 int GameManager::processFiles(const std::string mazeFilePath) {
 
 	std::string line;
@@ -223,7 +242,7 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 			//characters validation provided in maze
 			for (int i = 0; i < numOfRows; ++i) {
 				for (int j = 0; j < numOfCols; ++j) {
-					if (!validCharacter((*maze[i][j]).obstacle)) {
+					if (!isValidCharacter((*maze[i][j]).obstacle)) {
 						if (!((*maze[i][j]).obstacle == '\r' && j == numOfCols - 1)) {
 							printError(ErrorStatus::Wrong_Character, "", (*maze[i][j]).obstacle, i + 1, j + 1);
 							occurredError = true;
@@ -248,23 +267,18 @@ int GameManager::processFiles(const std::string mazeFilePath) {
 	}
 }
 
-bool GameManager::validCharacter(const char& c) {
+
+/*
+ *checks whether the given char c is a valid maze character
+ */
+bool GameManager::isValidCharacter(const char& c) {
 	return (c == WALL || c == SPACE || c == PLAYER || c == TREASURE);
 }
-void GameManager::printMaze() {
-	std::cout << "The name of the maze: " << nameOfMaze << std::endl;
-	std::cout << "MaxSteps: " << maxSteps << std::endl;
-	std::cout << "number of rows: " << numOfRows << std::endl;
-	std::cout << "number of cols: " << numOfCols << std::endl;
 
-	for (int i = 0; i < numOfRows; ++i) {
-		for (int j = 0; j < numOfCols; ++j) {
-			std::cout << (*maze[i][j]).obstacle;
-		}
-		std::cout << std::endl;
-	}
-}
 
+/*
+ * prints the error specified in ErrorStatus to the screen
+ */
 void GameManager::printError(ErrorStatus error, std::string line, char c, size_t row, size_t col) {
 
 	switch (error) {
@@ -343,8 +357,14 @@ void GameManager::printError(ErrorStatus error, std::string line, char c, size_t
 }
 
 
-
-int GameManager::extractNumFromString(std::string str, int& arg, std::string firstWord, std::string secondWord) {
+/*
+ * extract the number from received string of the form: "blabla = 5"
+ * checks that the first and the second words in the string indeed matches expected "firstWord" and "scondWord"
+ * checks that the extracted number greater than 0
+ * stores the result in the passed arg agument
+ * in case of success return SUCCESS(0) otherwise FAILURE(1)
+ */
+int GameManager::extractNumFromString(std::string str, int& arg, std::string firstWord, std::string secondWord) const {
 	std::vector<std::string> result;
 	std::istringstream iss(str);
 	//break the strings to tokens
