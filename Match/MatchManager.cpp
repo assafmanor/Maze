@@ -127,7 +127,7 @@ void MatchManager::safelyIncIndexes(int &i, int &j) {
 	else if (currAlgo < ((int)numOfAlgorithms) - 1) {
 		++currAlgo;
 	}
-	else{//(currAlgo == ((int)numOfAlgorithms) - 1) {
+	else{
 		currAlgo = 0;
 		++currMaze;
 	}

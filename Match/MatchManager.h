@@ -93,7 +93,18 @@ public:
 	 */
 	static int processCommandLineArgs(int numOfArgs, char** argv, std::vector<std::string>& result, int &numOfThreads, bool& providedOutputArg);
 
+	/*
+	 * runs the games, meaning the Algorithms on the mazes
+	 * as long as their are games to run, calls safelyIncIndexes to get the next algo and maze
+	 * stores the results in the proper entry of the recived scores table
+	 */
 	void runGames(AlgorithmRegistrar &registrar, std::vector<std::vector<int>> &scores);
+
+	/*
+  	 * stores in the given argument i the next maze to run 
+	 * stores in the given argument j the next algorithm to run
+	 * uses lock_guard to insure that each thread calling this func gets unique pair of maze and algorithm
+	 */
 	void safelyIncIndexes(int &i, int &j);
 
 
